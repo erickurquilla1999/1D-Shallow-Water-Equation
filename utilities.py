@@ -20,30 +20,26 @@ def save_data_to_hdf5(data, labels, filename):
     # Open HDF5 file for writing
     with h5py.File(filename, "w") as hf:
         # Save data and labels
-        for i, (d, l) in enumerate(zip(data, labels)):
-            hf.create_dataset(f"data_{i}", data=d)
-            hf.create_dataset(f"label_{i}", data=np.string_(l))
+        for label, d in zip(labels, data):
+            hf.create_dataset(label, data=d)
 
-
-def load_data_from_hdf5(label, filename):
+def load_data_from_hdf5(dataset_name, filename):
     """
-    Load data from an HDF5 file based on the label.
+    Load data from an HDF5 file based on the provided dataset name.
 
     Parameters:
-        label (str): Label of the data to load.
+        dataset_name (str): Name of the dataset to load.
         filename (str): Name of the HDF5 file containing the data.
 
     Returns:
-        numpy.ndarray: Array corresponding to the specified label.
+        numpy.ndarray: Array corresponding to the specified dataset name.
     """
     with h5py.File(filename, "r") as hf:
-        # Check if the label exists in the file
-        if f"label_{label}" not in hf:
-            raise ValueError(f"Label '{label}' not found in the HDF5 file.")
+        # Check if the dataset exists in the file
+        if dataset_name not in hf:
+            raise ValueError(f"Dataset '{dataset_name}' not found in the HDF5 file '{filename}'.")
 
-        # Load the dataset corresponding to the label
-        data = hf[f"data_{label}"][:]
+        # Load the dataset
+        data = hf[dataset_name][:]
     
     return data
-
-
