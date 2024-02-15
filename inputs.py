@@ -13,4 +13,4 @@ n_steps = 15 # number of time steps
 t_limit = 100 # (s) simulation time limit
 
 # output data setting
-out_number_x_points= 100 # number of point to store data in each time step
+out_x_points_per_element= 10 # number of point to store data in each time step
