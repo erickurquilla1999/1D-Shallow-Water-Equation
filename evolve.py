@@ -54,17 +54,26 @@ def write_initial_conditions():
 
     utilities.save_data_to_hdf5([element_number,nodes_coords,h_height,u_velocity,x_out,h_out,u_out], ['element_number','nodes_coord','h_height','u_velocity','x_out','h_out','u_out'], 'output/step_1.h5')
 
-    # import matplotlib.pyplot as plt     
-    # fig, ax = plt.subplots()
-    # for n in element_number:
-    #     ax.plot(x_out[n],h_out[n])
+    # test
 
-    # h_theory=[]    
-    # for x in np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements):
-    #     h_theory.append(initial_conditions.initial_height(x))
-    # ax.plot(np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements),h_theory,c='black',linestyle='dotted')
+    import matplotlib.pyplot as plt  
 
-    # fig.savefig('t_step_0.pdf',bbox_inches='tight')
-    # plt.show()
-    # plt.clf()
+    fig, ax = plt.subplots()
+    for n in element_number:
+        ax.plot(x_out[n],h_out[n])
+    h_ini=[]    
+    for x in np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements):
+        h_ini.append(initial_conditions.initial_height(x))
+    ax.plot(np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements),h_ini,c='black',linestyle='dotted')
+    fig.savefig('output/h_initial_conditions_test.pdf',bbox_inches='tight')
+    plt.clf()
 
+    fig, ax = plt.subplots()
+    for n in element_number:
+        ax.plot(x_out[n],u_out[n])
+    u_ini=[]
+    for x in np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements):
+        u_ini.append(initial_conditions.velocity_initial(x))
+    ax.plot(np.linspace(inputs.x_initial,inputs.x_final,inputs.out_x_points_per_element*inputs.N_elements),u_ini,c='black',linestyle='dotted')
+    fig.savefig('output/u_initial_conditions_test.pdf',bbox_inches='tight')
+    plt.clf()
