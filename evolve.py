@@ -46,7 +46,7 @@ def compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_gauss
         R_1_f_2 = 0.5*(right_node_coords[n]-left_node_coords[n])*np.dot(dphi_dx.T,f_2_gauss)
 
         basis_at_initial_ele_node = basis_values_at_ref_coords[n][0]
-        basis_at_final_ele_node = basis_values_at_ref_coords[n][len(basis_values_at_ref_coords)-1]
+        basis_at_final_ele_node = basis_values_at_ref_coords[n][len(basis_values_at_ref_coords[n])-1]
 
          # computing Roe flux
         roe_flux_1_left=0
@@ -97,9 +97,16 @@ def compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_gauss
     return R_f_1, R_f_2
 
 def compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2 ):
+
+    du1dt=[]
+    du2dt=[]
+
     #Lopp over all element
     for n in element_number:
-        a=0
+        du1dt.append(np.dot(M_inverse[n],R_f_1[n]))    
+        du2dt.append(np.dot(M_inverse[n],R_f_2[n]))    
+
+    return du1dt, du2dt
 
 
 
