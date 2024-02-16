@@ -5,7 +5,7 @@ x_initial = 0 # (m) initial domain coordinate
 x_final = 10 # (m) final domain coordinate
 
 # DG method
-N_elements= 10 # number of elements
+N_elements= 2 # number of elements
 p_basis_order = 2 # lagrange basis order
 
 # simulation time

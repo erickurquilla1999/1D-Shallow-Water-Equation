@@ -81,7 +81,7 @@ def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n
         ]
         for nodes, gauss_coords in zip(nodes_coord_ref_space, gauss_coords_in_elements)
     ]
-    # basis_values_at_gauss_coords contains [ [gauss coords1 phi1, gauss coord1 phi2 , ... , gauss coord1 phin], [gauss coords2 phi1, gauss coord2 phi2 , ... , gauss coord2 phin] ... , ]
+    # basis_values_at_gauss_coords contains [ [phi1(gauss coords1), phi2(gauss coord1) , ... , phin(gauss coord1)], [phi1(gauss coords2), phi2(gauss coord2) , ... , phin(gauss coord2)] ... , ]
 
     # saving this information in generatedfiles/reference_space.h5
     utilities.save_data_to_hdf5([element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements],

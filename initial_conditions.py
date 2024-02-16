@@ -45,8 +45,12 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
 
     return f1, f2
 
+    ###############################################
     # Testing the initial conditions scripts / see output/h_initial_conditions_test.pdf and see output/u_initial_conditions_test.pdf
+    ###############################################
+
     os.makedirs('tests', exist_ok=True)
+
     # plotting h from basis functions aproximation toguether with h given by the initial conditions equations 
     fig, ax = plt.subplots()
     for x, h in zip(x_out, h_out):
