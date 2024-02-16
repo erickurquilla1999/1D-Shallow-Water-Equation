@@ -29,6 +29,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
         x_loc = np.linspace(left_node_coords[n], right_node_coords[n], inputs.out_x_points_per_element + 1)
         x_out.append(x_loc)
         
+        # interpolate the height and velocity from the base function to all the points
         basis_vals = np.array(basis_values_at_the_point_to_save_data[n])
         h_out.append(np.dot(basis_vals, h_height[n]))
         u_out.append(np.dot(basis_vals, u_velocity[n]))
@@ -39,7 +40,8 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
                                 ['element_number', 'nodes_coord', 'h_height', 'u_velocity', 'x_out', 'h_out', 'u_out'],
                                 'output/step_0.h5')
 
-    # Testing the initial conditions scripts
+    # Testing the initial conditions scripts / see output/h_initial_conditions_test.pdf and see output/u_initial_conditions_test.pdf
+    # plotting h from basis functions aproximation toguether with h given by the initial conditions equations 
     fig, ax = plt.subplots()
     for x, h in zip(x_out, h_out):
         ax.plot(x, h)
@@ -52,6 +54,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     fig.savefig('output/h_initial_conditions_test.pdf', bbox_inches='tight')
     plt.clf()
 
+    # plotting u from basis functions aproximation toguether with u given by the initial conditions equations 
     fig, ax = plt.subplots()
     for x, u in zip(x_out, u_out):
         ax.plot(x, u)

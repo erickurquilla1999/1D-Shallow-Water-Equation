@@ -15,14 +15,15 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, nodes_per_element
     # Compute element lengths
     element_lengths = np.diff(elements_division)
 
-    # Compute nodes coordinates inside each element
+    # Compute nodes coordinates in reference space and physical space inside each element
     nodes_coord = []
     nodes_coord_ref_space = []
 
     for i in range(num_elements):
         nodes_coord.append(np.linspace(elements_division[i], elements_division[i + 1], nodes_per_elements + 1))
         nodes_coord_ref_space.append(np.linspace(-1,1,nodes_per_elements + 1))
-
+    
+    # save mesh information in 'generatedfiles/grid.h5'
     utilities.save_data_to_hdf5([elements, left_node_coords, right_node_coords, element_lengths, nodes_coord, nodes_coord_ref_space],
                                 ['element_number','left_node_coords','right_node_coords','element_lengths','nodes_coords', 'nodes_coord_ref_space'],
                                 'generatedfiles/grid.h5')
