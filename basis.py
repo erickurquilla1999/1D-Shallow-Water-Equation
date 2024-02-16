@@ -46,60 +46,41 @@ def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n
     element_number=np.arange(N_elements)
 
     # saving basis function evaluated at nodes in reference space
-    basis_values_at_ref_coords=[]
-
-    # loop over each element
-    for i in element_number:
-        basis_values_at_ele_i=[]
-        # loop over the coordinates in reference space of the nodes in this element
-        for e in nodes_coord_ref_space[i]:
-            basis_in_e=[]
-            # loop over the lagrange basis functions in this element and save the lagrange basis functions evaluated in e
-            for k in np.arange(p_basis_order+1):
-                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
-            basis_values_at_ele_i.append(basis_in_e)                
-        basis_values_at_ref_coords.append(basis_values_at_ele_i)                
+    basis_values_at_ref_coords = [
+        [
+            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
+            for e in nodes_coord_ref_space[i]
+        ]
+        for i, nodes in enumerate(nodes_coord_ref_space)
+    ]    
 
     # generating lagrange basis values in reference space [-1,1] to store the output data
-    ref_coords_to_save_data=[]
     ref_coords_to_save_data = [np.linspace(-1, 1, out_x_points_per_element + 1) for _ in range(N_elements)]
 
-    basis_values_at_the_point_to_save_data=[]
-
-    # loop over each element
-    for i in element_number:
-        basis_values_at_ele_i=[]
-        # loop over the coordinates in reference space of the nodes of the data i will storage for this element
-        for e in ref_coords_to_save_data[i]:
-            basis_in_e=[]
-            # loop over the basis function and save the lagrange basis functions evaluated in e
-            for k in np.arange(p_basis_order+1):
-                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
-            basis_values_at_ele_i.append(basis_in_e)                
-        basis_values_at_the_point_to_save_data.append(basis_values_at_ele_i)
+    # saving basis function evaluated in reference space points to store the output data
+    basis_values_at_the_point_to_save_data = [
+        [
+            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
+            for e in ref_coords
+        ]
+        for nodes, ref_coords in zip(nodes_coord_ref_space, ref_coords_to_save_data)
+    ]
 
     # generate Gauss cuadrature and weights
     gauss_coords, gauss_weights = np.polynomial.legendre.leggauss(n_gauss_poins)
     
     # saving gauss coordinates and weigths all of them are the same for each element
-    gauss_coords_in_elements=[]
-    gauss_weights_in_elements=[]
-    gauss_coords_in_elements.extend([gauss_coords] * N_elements)
-    gauss_weights_in_elements.extend([gauss_weights] * N_elements)
+    gauss_coords_in_elements = [gauss_coords for _ in range(N_elements)]
+    gauss_weights_in_elements = [gauss_weights for _ in range(N_elements)]
 
     # evaluating the basis function in the gauss quadrature points
-    basis_values_at_gauss_coords=[]
-    # loop over each element
-    for i in element_number:
-        basis_values_at_ele_i=[]
-        # loop over the coordinates in reference space of the nodes in this element
-        for e in gauss_coords_in_elements[i]:
-            basis_in_e=[]
-            # loop over the lagrange basis functions in this element and save the lagrange basis functions evaluated in e in the quarature points
-            for k in np.arange(p_basis_order+1):
-                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
-            basis_values_at_ele_i.append(basis_in_e)                
-        basis_values_at_gauss_coords.append(basis_values_at_ele_i)
+    basis_values_at_gauss_coords = [
+        [
+            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
+            for e in gauss_coords
+        ]
+        for nodes, gauss_coords in zip(nodes_coord_ref_space, gauss_coords_in_elements)
+    ]
     # basis_values_at_gauss_coords contains [ [gauss coords1 phi1, gauss coord1 phi2 , ... , gauss coord1 phin], [gauss coords2 phi1, gauss coord2 phi2 , ... , gauss coord2 phin] ... , ]
 
     # saving this information in generatedfiles/reference_space.h5
@@ -107,4 +88,4 @@ def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n
                                 ['element_number','nodes_coord_ref_space','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords_in_elements','basis_values_at_gauss_coords','gauss_weights_in_elements'],
                                 'generatedfiles/reference_space.h5')
 
-    return element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements
+    return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements
