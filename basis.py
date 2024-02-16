@@ -39,6 +39,30 @@ def lagrange_interpolation(nodes, values, x):
         result += values[k] * lagrange_basis(nodes, k, x)
     return result
 
+def lagrange_basis_derivative(nodes, node_index, x):
+    """
+    Compute the derivative of the Lagrange basis function for a given node and value of x.
+
+    Parameters:
+        nodes (array-like): Array of nodes in the element.
+        node_index (int): Index of the node for which to compute the derivative.
+        x (float): Value of x for which to compute the derivative.
+
+    Returns:
+        float: The derivative of the Lagrange basis function at the given node and value of x.
+    """
+    basis_derivative = 0
+    for i, node in enumerate(nodes):
+        if i != node_index:
+            numerator = 1
+            denominator = 1
+            for j, other_node in enumerate(nodes):
+                if j != node_index and j != i:
+                    numerator *= (x - other_node)
+                    denominator *= (node - other_node)
+            basis_derivative += numerator / denominator
+
+    return basis_derivative
 
 def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n_gauss_poins, nodes_coord_ref_space):
 
