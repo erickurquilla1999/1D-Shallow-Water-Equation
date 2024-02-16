@@ -23,7 +23,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     h_height = [np.array([initial_conditions.initial_height(x_node) for x_node in nodes]) for nodes in nodes_coords]
     u_velocity = [np.array([initial_conditions.velocity_initial(x_node) for x_node in nodes]) for nodes in nodes_coords]
     
-    # Interpolating to save the output data
+    # Interpolating to save the output data / out means output data to plot
     x_out, h_out, u_out = [], [], []
     for n in element_number:
         x_loc = np.linspace(left_node_coords[n], right_node_coords[n], inputs.out_x_points_per_element + 1)
@@ -41,6 +41,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
                                 'output/step_0.h5')
 
     # Testing the initial conditions scripts / see output/h_initial_conditions_test.pdf and see output/u_initial_conditions_test.pdf
+    os.makedirs('tests', exist_ok=True)
     # plotting h from basis functions aproximation toguether with h given by the initial conditions equations 
     fig, ax = plt.subplots()
     for x, h in zip(x_out, h_out):
@@ -51,7 +52,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     ax.set_xlabel(r'$x$ (m)')
     ax.set_ylabel(r"$h$ (m)")
     ax.legend()
-    fig.savefig('output/h_initial_conditions_test.pdf', bbox_inches='tight')
+    fig.savefig('tests/h_initial_conditions_test.pdf', bbox_inches='tight')
     plt.clf()
 
     # plotting u from basis functions aproximation toguether with u given by the initial conditions equations 
@@ -63,5 +64,5 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     ax.set_xlabel(r'$x$ (m)')
     ax.set_ylabel(r"$u$ (m)")
     ax.legend()
-    fig.savefig('output/u_initial_conditions_test.pdf', bbox_inches='tight')
+    fig.savefig('tests/u_initial_conditions_test.pdf', bbox_inches='tight')
     plt.clf()
