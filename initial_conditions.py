@@ -43,8 +43,6 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     f1 = h_height
     f2 = np.multiply(h_height,u_velocity)
 
-    return f1, f2
-
     ###############################################
     # Testing the initial conditions scripts / see output/h_initial_conditions_test.pdf and see output/u_initial_conditions_test.pdf
     ###############################################
@@ -75,3 +73,5 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     ax.legend()
     fig.savefig('tests/u_initial_conditions_test.pdf', bbox_inches='tight')
     plt.clf()
+
+    return f1, f2
