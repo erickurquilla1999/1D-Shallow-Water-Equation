@@ -7,8 +7,7 @@ import initial_conditions
 import basis
 
 # creating a generatedfiles directory to save generated files
-try: os.makedirs('generatedfiles')
-except: os.system('rm -r generatedfiles/*')
+os.makedirs('generatedfiles', exist_ok=True)
 
 # creating mesh
 element_number, nodes_coord,  left_node_coords, right_node_coords, nodes_coord_ref_space = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
