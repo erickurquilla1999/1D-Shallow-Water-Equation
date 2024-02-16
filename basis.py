@@ -40,38 +40,58 @@ def lagrange_interpolation(nodes, values, x):
     return result
 
 
-def generate_reference_space(p_basis_order,out_x_points_per_element,n_gauss_poins):
+def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n_gauss_poins, nodes_coord_ref_space):
 
-    # generating lagrange basis values in reference space [-1,1]
-    ref_coords=np.linspace(-1,1,p_basis_order+1)
-    basis_number=np.arange(p_basis_order+1)
+    # element number
+    element_number=np.arange(N_elements)
+
+    # saving basis function evaluated at nodes in reference space
     basis_values_at_ref_coords=[]
 
-    for k in range(p_basis_order+1):
-        basis_k=[]
-        for e in ref_coords:
-            basis_k.append(basis.lagrange_basis(ref_coords, k, e))
-        basis_values_at_ref_coords.append(basis_k)
+    for i in element_number:
+        basis_values_at_ele_i=[]
+        for e in nodes_coord_ref_space[i]:
+            basis_in_e=[]
+            for k in np.arange(p_basis_order+1):
+                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
+            basis_values_at_ele_i.append(basis_in_e)                
+        basis_values_at_ref_coords.append(basis_values_at_ele_i)                
 
     # generating lagrange basis values in reference space [-1,1] for store the output data
-    ref_coords_to_save_data=np.linspace(-1,1,out_x_points_per_element+1)
+    ref_coords_to_save_data=[]
+    for i in np.arange(N_elements):
+        ref_coords_to_save_data.append(np.linspace(-1,1,out_x_points_per_element+1))
     basis_values_at_the_point_to_save_data=[]
 
-    for k in range(p_basis_order+1):
-        basis_k=[]
-        for e in ref_coords_to_save_data:
-            basis_k.append(basis.lagrange_basis(ref_coords, k, e))
-        basis_values_at_the_point_to_save_data.append(basis_k)
+    for i in element_number:
+        basis_values_at_ele_i=[]
+        for e in ref_coords_to_save_data[i]:
+            basis_in_e=[]
+            for k in np.arange(p_basis_order+1):
+                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
+            basis_values_at_ele_i.append(basis_in_e)                
+        basis_values_at_the_point_to_save_data.append(basis_values_at_ele_i)
 
     # reference space for Gauss cuadrature
     gauss_coords, gauss_weights = np.polynomial.legendre.leggauss(n_gauss_poins)
+    gauss_coords_in_element=[]
+    gauss_weights_in_element=[]
+    for i in np.arange(N_elements):
+        gauss_coords_in_element.append(gauss_coords)
+        gauss_weights_in_element.append(gauss_weights)
     basis_values_at_gauss_coords=[]
 
-    for k in range(p_basis_order+1):
-        basis_k=[]
-        for e in gauss_coords:
-            basis_k.append(basis.lagrange_basis(ref_coords, k, e))
-        basis_values_at_gauss_coords.append(basis_k)
+    for i in element_number:
+        basis_values_at_ele_i=[]
+        for e in gauss_coords_in_element[i]:
+            basis_in_e=[]
+            for k in np.arange(p_basis_order+1):
+                basis_in_e.append(basis.lagrange_basis(nodes_coord_ref_space[i], k, e))
+            basis_values_at_ele_i.append(basis_in_e)                
+        basis_values_at_gauss_coords.append(basis_values_at_ele_i)
 
     # saving this information in generatedfiles/reference_space.h5
-    utilities.save_data_to_hdf5([basis_number,ref_coords,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords,gauss_weights,basis_values_at_gauss_coords],['basis_number','ref_coords','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords','gauss_weights','basis_values_at_gauss_coords'],'generatedfiles/reference_space.h5')
+
+    utilities.save_data_to_hdf5([element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_element,basis_values_at_gauss_coords,gauss_weights_in_element],['element_number','nodes_coord_ref_space','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords_in_element','basis_values_at_gauss_coords','gauss_weights_in_element'],'generatedfiles/reference_space.h5')
+
+    return element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_element,basis_values_at_gauss_coords,gauss_weights_in_element
