@@ -107,9 +107,20 @@ def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n
     ]
     # basis_values_at_gauss_coords contains [ [phi1(gauss coords1), phi2(gauss coord1) , ... , phin(gauss coord1)], [phi1(gauss coords2), phi2(gauss coord2) , ... , phin(gauss coord2)] ... , ]
 
+    # evaluating the derivative in x of basis function in the gauss quadrature points
+    basis_derivative_values_at_gauss_coords = [
+        [
+            [basis.lagrange_basis_derivative(nodes, k, e) for k in range(p_basis_order + 1)]
+            for e in gauss_coords
+        ]
+        for nodes, gauss_coords in zip(nodes_coord_ref_space, gauss_coords_in_elements)
+    ]
+    # basis_derivative_values_at_gauss_coords contains [ [phi1'(gauss coords1), phi2'(gauss coord1) , ... , phin'(gauss coord1)], [phi1'(gauss coords2), phi2'(gauss coord2) , ... , phin'(gauss coord2)] ... , ]
+    # prime means derivative in x
+
     # saving this information in generatedfiles/reference_space.h5
-    utilities.save_data_to_hdf5([element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements],
-                                ['element_number','nodes_coord_ref_space','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords_in_elements','basis_values_at_gauss_coords','gauss_weights_in_elements'],
+    utilities.save_data_to_hdf5([element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords],
+                                ['element_number','nodes_coord_ref_space','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords_in_elements','basis_values_at_gauss_coords','gauss_weights_in_elements','basis_derivative_values_at_gauss_coords'],
                                 'generatedfiles/reference_space.h5')
 
-    return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements
+    return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords
