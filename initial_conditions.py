@@ -37,7 +37,7 @@ def write_initial_conditions(element_number, nodes_coords, left_node_coords, rig
     os.makedirs('output', exist_ok=True)
     utilities.save_data_to_hdf5([element_number, nodes_coords, h_height, u_velocity, x_out, h_out, u_out],
                                 ['element_number', 'nodes_coord', 'h_height', 'u_velocity', 'x_out', 'h_out', 'u_out'],
-                                'output/step_1.h5')
+                                'output/step_0.h5')
 
     # Testing the initial conditions scripts
     fig, ax = plt.subplots()

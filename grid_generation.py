@@ -23,6 +23,8 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, nodes_per_element
         nodes_coord.append(np.linspace(elements_division[i], elements_division[i + 1], nodes_per_elements + 1))
         nodes_coord_ref_space.append(np.linspace(-1,1,nodes_per_elements + 1))
 
-    utilities.save_data_to_hdf5([elements, left_node_coords, right_node_coords, element_lengths, nodes_coord, nodes_coord_ref_space],['element_number','left_node_coords','right_node_coords','element_lengths','nodes_coords', 'nodes_coord_ref_space'],'generatedfiles/grid.h5')
+    utilities.save_data_to_hdf5([elements, left_node_coords, right_node_coords, element_lengths, nodes_coord, nodes_coord_ref_space],
+                                ['element_number','left_node_coords','right_node_coords','element_lengths','nodes_coords', 'nodes_coord_ref_space'],
+                                'generatedfiles/grid.h5')
 
     return elements, nodes_coord, left_node_coords, right_node_coords, nodes_coord_ref_space
