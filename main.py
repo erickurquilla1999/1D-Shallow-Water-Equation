@@ -9,11 +9,11 @@ import integrator
 # creating mesh
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
-# generationg reference space information
+# generating reference space information
 basis.generate_reference_space(element_number,nodes_coordinates_ref_space,inputs.n_gauss_poins)
 
-# write initial conditions in output/step_0.h5 directory. f1=h and f2=hu
-f1, f2 = initial_conditions.write_initial_conditions(element_number, nodes_coord, left_node_coords, right_node_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data)
+# generating initial conditions
+h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
 
 # compute matrix M and return the inverse matrix of M
 M_inverse = evolve.compute_M_matrix_inverse(element_number,basis_values_at_gauss_coords,gauss_weights_in_elements,left_node_coords, right_node_coords)
