@@ -5,18 +5,15 @@ x_initial = 0 # (m) initial domain coordinate
 x_final = 10 # (m) final domain coordinate
 
 # DG method
-N_elements= 10 # number of elements
-p_basis_order = 2 # lagrange basis order
+N_elements= 2 # number of elements
+p_basis_order = 1 # lagrange basis order
 
 # simulation time
-n_steps = 15 # number of time steps
-t_limit = 100 # (s) simulation time limit
-
-# output data setting
-out_x_points_per_element= 10 # number of point to store data in each time step
+n_steps = 1 # number of time steps
+t_limit = 0.08 # (s) simulation time limit
 
 # Gauss cuadrature
-n_gauss_poins = 10 
+n_gauss_poins = 3 
 
 # constant
 g = 9.8 # m/s^2
