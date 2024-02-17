@@ -1,14 +1,10 @@
 import numpy as np
 import grid_generation
 import inputs
-import os
 import evolve 
 import initial_conditions
 import basis
 import integrator
-
-# creating a generatedfiles directory to save generated files
-os.makedirs('generatedfiles', exist_ok=True)
 
 # creating mesh
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
