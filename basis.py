@@ -1,5 +1,4 @@
 import numpy as np
-import basis
 import utilities
 
 def lagrange_basis(nodes, k, x):
@@ -64,63 +63,51 @@ def lagrange_basis_derivative(nodes, node_index, x):
 
     return basis_derivative
 
-def generate_reference_space(N_elements,p_basis_order,out_x_points_per_element,n_gauss_poins, nodes_coord_ref_space):
-
-    # element number
-    element_number=np.arange(N_elements)
+def generate_reference_space(elements, nodes_ref_space, n_gauss_quad_points):
 
     # saving basis function evaluated at nodes in reference space
-    basis_values_at_ref_coords = [
+    # basis_func_values_at_nodes_in_ref_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
+    #                                             [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]
+    basis_func_values_at_nodes_in_ref_space = [
         [
-            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
-            for e in nodes_coord_ref_space[i]
+            [lagrange_basis(nodes, bas, e) for bas in range(len(nodes))]
+            for e in nodes
         ]
-        for i, nodes in enumerate(nodes_coord_ref_space)
+        for nodes in nodes_ref_space
     ]    
 
-    # generating lagrange basis values in reference space [-1,1] to store the output data
-    ref_coords_to_save_data = [np.linspace(-1, 1, out_x_points_per_element + 1) for _ in range(N_elements)]
-
-    # saving basis function evaluated in reference space points to store the output data
-    basis_values_at_the_point_to_save_data = [
-        [
-            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
-            for e in ref_coords
-        ]
-        for nodes, ref_coords in zip(nodes_coord_ref_space, ref_coords_to_save_data)
-    ]
-
-    # generate Gauss cuadrature and weights
-    gauss_coords, gauss_weights = np.polynomial.legendre.leggauss(n_gauss_poins)
+    # generate Gauss cuadrature and weights in reference space
+    gauss_coords_ref_space, gauss_weights_ref_space = np.polynomial.legendre.leggauss(n_gauss_quad_points)
     
     # saving gauss coordinates and weigths all of them are the same for each element
-    gauss_coords_in_elements = [gauss_coords for _ in range(N_elements)]
-    gauss_weights_in_elements = [gauss_weights for _ in range(N_elements)]
+    gauss_coords_ref_space = [gauss_coords_ref_space for _ in elements]
+    gauss_weights_ref_space = [gauss_weights_ref_space for _ in elements]
 
     # evaluating the basis function in the gauss quadrature points
-    basis_values_at_gauss_coords = [
+    # basis_func_values_at_gauss_quad_in_ref_space = [ [phi_1(gauss_coords_1), phi_2(gauss_coords_1) , ... , phi_p(gauss_coords_1)] , 
+    #                                                  [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
+    basis_func_values_at_gauss_quad_in_ref_space = [
         [
-            [basis.lagrange_basis(nodes, k, e) for k in range(p_basis_order + 1)]
+            [lagrange_basis(nodes, bas, e) for bas in range(len(nodes))]
             for e in gauss_coords
         ]
-        for nodes, gauss_coords in zip(nodes_coord_ref_space, gauss_coords_in_elements)
-    ]
-    # basis_values_at_gauss_coords contains [ [phi1(gauss coords1), phi2(gauss coord1) , ... , phin(gauss coord1)], [phi1(gauss coords2), phi2(gauss coord2) , ... , phin(gauss coord2)] ... , ]
+        for nodes, gauss_coords in zip(nodes_ref_space, gauss_coords_ref_space)
+    ]    
 
-    # evaluating the derivative in x of basis function in the gauss quadrature points
-    basis_derivative_values_at_gauss_coords = [
+    # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
+    # time_derivative_of_basis_func_at_gauss_quad_in_ref_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
+    #                                                              [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
+    time_derivative_of_basis_func_at_gauss_quad_in_ref_space = [
         [
-            [basis.lagrange_basis_derivative(nodes, k, e) for k in range(p_basis_order + 1)]
+            [lagrange_basis_derivative(nodes, bas, e) for bas in range(len(nodes))]
             for e in gauss_coords
         ]
-        for nodes, gauss_coords in zip(nodes_coord_ref_space, gauss_coords_in_elements)
+        for nodes, gauss_coords in zip(nodes_ref_space, gauss_coords_ref_space)
     ]
-    # basis_derivative_values_at_gauss_coords contains [ [phi1'(gauss coords1), phi2'(gauss coord1) , ... , phin'(gauss coord1)], [phi1'(gauss coords2), phi2'(gauss coord2) , ... , phin'(gauss coord2)] ... , ]
-    # prime means derivative in x
 
     # saving this information in generatedfiles/reference_space.h5
-    utilities.save_data_to_hdf5([element_number,nodes_coord_ref_space,basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords],
-                                ['element_number','nodes_coord_ref_space','basis_values_at_ref_coords','ref_coords_to_save_data','basis_values_at_the_point_to_save_data','gauss_coords_in_elements','basis_values_at_gauss_coords','gauss_weights_in_elements','basis_derivative_values_at_gauss_coords'],
+    utilities.save_data_to_hdf5([elements,nodes_ref_space,basis_func_values_at_nodes_in_ref_space,gauss_coords_ref_space,gauss_weights_ref_space,basis_func_values_at_gauss_quad_in_ref_space,time_derivative_of_basis_func_at_gauss_quad_in_ref_space],
+                                ['elements','nodes_ref_space','basis_func_values_at_nodes_in_ref_space','gauss_coords_ref_space','gauss_weights_ref_space','basis_func_values_at_gauss_quad_in_ref_space','time_derivative_of_basis_func_at_gauss_quad_in_ref_space'],
                                 'generatedfiles/reference_space.h5')
 
-    return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords
+    # return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords
