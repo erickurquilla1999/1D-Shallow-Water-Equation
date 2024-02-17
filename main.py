@@ -1,9 +1,10 @@
 import numpy as np
-import grid_generation
+
 import inputs
-import evolve 
-import initial_conditions
+import grid_generation
 import basis
+import initial_conditions
+import evolve 
 import integrator
 
 # creating mesh
@@ -14,6 +15,9 @@ basis.generate_reference_space(element_number,nodes_coordinates_ref_space,inputs
 
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
+
+# wrinting initial conditions file
+integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,True)
 
 # compute matrix M and return the inverse matrix of M
 M_inverse = evolve.compute_M_matrix_inverse(element_number,basis_values_at_gauss_coords,gauss_weights_in_elements,left_node_coords, right_node_coords)
@@ -44,5 +48,3 @@ for number_of_t_step in np.arange(inputs.n_steps):
     u_2 = u_2_new
     f_1 = u_2
     f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
-
-
