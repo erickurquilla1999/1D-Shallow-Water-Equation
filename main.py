@@ -38,13 +38,14 @@ for number_of_t_step in np.arange(inputs.n_steps):
     # compute time derivatives of u_1 and u_2
     du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
 
-#     # evolving in time with euler method
-#     u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt)
+    # evolving in time with euler method
+    u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
 
-#     # saving the data
-#     integrator.write_data_file(number_of_t_step,u_1_new, u_2_new,element_number, nodes_coord, left_node_coords, right_node_coords, basis_values_at_the_point_to_save_data)
+    # saving the data
+    integrator.write_data_file(element_number,nodes_coordinates_phys_space,u_1_new,u_2_new,True,number_of_t_step+1)
 
-#     u_1 = u_1_new
-#     u_2 = u_2_new
-#     f_1 = u_2
-#     f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
+    # saving new quantities to evolve next time step
+    u_1 = u_1_new
+    u_2 = u_2_new
+    f_1 = u_2
+    f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
