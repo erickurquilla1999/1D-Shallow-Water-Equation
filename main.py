@@ -11,7 +11,7 @@ import integrator
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 # generating reference space information
-gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad = basis.generate_reference_space(element_number,nodes_coordinates_ref_space,inputs.n_gauss_poins)
+gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad = basis.generate_reference_space(element_number,nodes_coordinates_phys_space,inputs.n_gauss_poins)
 
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
@@ -22,12 +22,12 @@ integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False
 # compute matrix M and return the inverse matrix of M
 M_inverse = evolve.compute_M_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
-# #mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). f1=h and f2=hu.
-# # setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
-# u_1 = f1
-# u_2 = f2
-# f_1 = u_2
-# f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
+#mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
+# setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
+u_1 = h
+u_2 = h*u
+f_1 = u_2
+f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
 
 # # evolving in time the PDE
 # for number_of_t_step in np.arange(inputs.n_steps):
