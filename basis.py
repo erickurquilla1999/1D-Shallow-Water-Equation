@@ -1,7 +1,7 @@
 import numpy as np
 import utilities
 
-def lagrange_basis(nodes, k, x):
+def lagrange_basis(nodes, i, x):
     """
     Compute the Lagrange basis function corresponding to node k.
 
@@ -16,8 +16,8 @@ def lagrange_basis(nodes, k, x):
     n = len(nodes)
     basis = 1.0
     for j in range(n):
-        if j != k:
-            basis *= (x - nodes[j]) / (nodes[k] - nodes[j])
+        if j != i:
+            basis *= (x - nodes[j]) / (nodes[i] - nodes[j])
     return basis
 
 def lagrange_interpolation(nodes, values, x):
@@ -38,26 +38,26 @@ def lagrange_interpolation(nodes, values, x):
         result += values[k] * lagrange_basis(nodes, k, x)
     return result
 
-def lagrange_basis_derivative(nodes, node_index, x):
+def lagrange_basis_derivative(nodes, i, x):
     """
     Compute the derivative of the Lagrange basis function for a given node and value of x.
 
     Parameters:
         nodes (array-like): Array of nodes in the element.
-        node_index (int): Index of the node for which to compute the derivative.
+        i (int): Index of the node for which to compute the derivative.
         x (float): Value of x for which to compute the derivative.
 
     Returns:
         float: The derivative of the Lagrange basis function at the given node and value of x.
     """
     basis_derivative = 0
-    for i in range(len(nodes)):
-        if i != node_index:
+    for j in range(len(nodes)):
+        if j != i:
             pc = 1
-            for j in range(len(nodes)):
-                if j != node_index and j != i:
-                    pc *= (x-nodes[j])/(nodes[node_index]-nodes[j])
-            basis_derivative += pc/(nodes[node_index]-nodes[i])
+            for k in range(len(nodes)):
+                if k != j and k != i:
+                    pc *= (x-nodes[k])/(nodes[i]-nodes[k])
+            basis_derivative += pc/(nodes[i]-nodes[j])
     return basis_derivative
 
 def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
