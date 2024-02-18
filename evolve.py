@@ -68,24 +68,24 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_
             roe_flux_2_right = 0.5 * (f2[n][-1] + f2[n + 1][0]) - 0.5 * Jacobian_right * (u2[n][-1] + u2[n + 1][0])
 
         # residual vector 2
-        R2_f1_in_element_n = -(np.array(basis_values_at_nods[0]) * roe_flux_1_right - np.array(basis_values_at_nods[-1]) * roe_flux_1_left)
-        R2_f2_in_element_n = -(np.array(basis_values_at_nods[0]) * roe_flux_2_right - np.array(basis_values_at_nods[-1]) * roe_flux_2_right)
+        R2_f1_in_element_n = -(np.array(basis_values_at_nods[n][0]) * roe_flux_1_right - np.array(basis_values_at_nods[n][-1]) * roe_flux_1_left)
+        R2_f2_in_element_n = -(np.array(basis_values_at_nods[n][0]) * roe_flux_2_right - np.array(basis_values_at_nods[n][-1]) * roe_flux_2_right)
 
         # adding residual vector 1 and 2
-        R_f1.append(R1_f1_in_element_n+R2_f1_in_element_n)
-        R_f2.append(R1_f2_in_element_n+R2_f2_in_element_n)
+        R_f1.append(np.array(R1_f1_in_element_n)+np.array(R2_f1_in_element_n))
+        R_f2.append(np.array(R1_f2_in_element_n)+np.array(R2_f2_in_element_n))
 
     return R_f1, R_f2
 
-def compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2 ):
+def compute_time_derivates(element_num,M_inv, Rf1, Rf2 ):
 
     du1dt=[]
     du2dt=[]
 
     #Lopp over all element
-    for n in element_number:
-        du1dt.append(np.dot(M_inverse[n],R_f_1[n]))    
-        du2dt.append(np.dot(M_inverse[n],R_f_2[n]))    
+    for n in element_num:
+        du1dt.append(np.dot(M_inv[n],Rf1[n]))    
+        du2dt.append(np.dot(M_inv[n],Rf2[n])) 
 
     return du1dt, du2dt
 

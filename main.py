@@ -35,8 +35,8 @@ for number_of_t_step in np.arange(inputs.n_steps):
     #computing residual vector
     R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad,element_lengths, basis_values_at_nodes)
 
-#     # compute time derivatives of u_1 and u_2
-#     du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
+    # compute time derivatives of u_1 and u_2
+    du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
 
 #     # evolving in time with euler method
 #     u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt)
