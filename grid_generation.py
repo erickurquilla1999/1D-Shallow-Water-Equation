@@ -3,6 +3,9 @@ import numpy as np
 import os
 
 def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
+
+    print(f'\nGenerating mesh ... \nPhysical domain: [{initial_coord},{final_coord}] meters\nNumber of elements: {num_elements}\nNodes per element: {basis_order+1}\nLagrange basis order: {basis_order}\n')
+
     # Generate elements coordinates
     elements_division = np.linspace(initial_coord, final_coord, num_elements + 1)
 
