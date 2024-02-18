@@ -4,7 +4,7 @@ import numpy as np
 
 def generate_initial_conditions(nodes_coords_all_elem):
 
-    print(f'\nSaving initial conditions ... \n')
+    print('\nSaving initial conditions ... \n')
 
     # initial height as function of x
     def initial_height(x):
