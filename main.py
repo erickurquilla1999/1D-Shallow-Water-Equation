@@ -48,4 +48,4 @@ for number_of_t_step in np.arange(inputs.n_steps):
     u_1 = u_1_new
     u_2 = u_2_new
     f_1 = u_2
-    f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
+    f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
