@@ -30,7 +30,7 @@ f_1 = u_2
 f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
 
 # evolving in time the PDE
-for number_of_t_step in np.arange(inputs.n_steps+1):
+for number_of_t_step in np.arange(inputs.n_steps):
 
     #computing residual vector
     R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad,element_lengths, basis_values_at_nodes)
