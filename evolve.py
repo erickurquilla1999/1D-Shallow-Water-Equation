@@ -1,9 +1,5 @@
 import numpy as np
-import initial_conditions
-import utilities
 import inputs
-import basis
-import os
 
 def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
