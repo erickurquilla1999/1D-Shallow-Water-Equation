@@ -51,16 +51,13 @@ def lagrange_basis_derivative(nodes, node_index, x):
         float: The derivative of the Lagrange basis function at the given node and value of x.
     """
     basis_derivative = 0
-    for i, node in enumerate(nodes):
+    for i in range(len(nodes)):
         if i != node_index:
-            numerator = 1
-            denominator = 1
-            for j, other_node in enumerate(nodes):
+            pc = 1
+            for j in range(len(nodes)):
                 if j != node_index and j != i:
-                    numerator *= (x - other_node)
-                    denominator *= (node - other_node)
-            basis_derivative += numerator / denominator
-
+                    pc *= (x-nodes[j])/(nodes[node_index]-nodes[j])
+            basis_derivative += pc/(nodes[node_index]-nodes[i])
     return basis_derivative
 
 def generate_reference_space(elements, nodes_ref_space, n_gauss_quad_points):
