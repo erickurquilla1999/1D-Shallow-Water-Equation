@@ -62,7 +62,7 @@ def lagrange_basis_derivative(nodes, i, x):
 
 def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
 
-    print(f'\nGenerating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}\n')
+    print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
 
     # saving basis function evaluated at nodes in physical space
     # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 

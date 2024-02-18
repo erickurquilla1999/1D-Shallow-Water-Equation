@@ -3,7 +3,7 @@ import inputs
 
 def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
-    print('\nComputing M inverse matrix ... \n')
+    print('Computing M inverse matrix ... ')
     
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
@@ -31,7 +31,7 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
 def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_values_at_gauss_quad_elements, basis_values_time_derivative_at_gauss_quad_elements,element_l, basis_values_at_nods):
 
-    print('\nComputing residual vector ... \n')
+    print('Computing residual vector ... ')
 
     R_f1=[]
     R_f2=[]
@@ -79,7 +79,7 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_
 
 def compute_time_derivates(element_num,M_inv, Rf1, Rf2 ):
 
-    print('\nComputing time derivatives of u_1 and u_2 ... \n')
+    print('Computing time derivatives of u_1 and u_2 ... ')
 
     du1dt=[]
     du2dt=[]

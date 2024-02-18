@@ -4,7 +4,7 @@ import os
 
 def euler_method(elmnt_numb,u1_,u2_,du1dt_, du2dt_,tstep,numb_t_step):
     
-    print(f'\nStep: {numb_t_step}  |  t = {tstep*numb_t_step}\n')
+    print(f'Step: {numb_t_step}  |  t = {tstep*numb_t_step}')
 
     u1_nw=np.zeros((len(elmnt_numb),len(u1_[0])))
     u2_nw=np.zeros((len(elmnt_numb),len(u2_[0])))
@@ -22,7 +22,7 @@ def euler_method(elmnt_numb,u1_,u2_,du1dt_, du2dt_,tstep,numb_t_step):
 
 def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
 
-    print(f'\nWriting step {step} ... \n')
+    print(f'Writing step {step} ... ')
 
     if vel_equal_hu:
         vel=np.where(hgt == 0, 0, np.array(vel)/np.array(hgt))
