@@ -1,24 +1,22 @@
 import numpy as np
-import inputs
 import utilities
 import os
 
-def euler_method(element_number,u_1,u_2,du1_dt, du2_dt):
-
-    #time step
-    t_step=inputs.t_limit/inputs.n_steps # s 
+def euler_method(elmnt_numb,u1_,u2_,du1dt_, du2dt_,tstep,numb_t_step):
     
-    u1_nw=np.zeros((len(element_number),len(u_1[0])))
-    u2_nw=np.zeros((len(element_number),len(u_1[0])))
+    print(f'\nStep: {numb_t_step}  |  t = {tstep*numb_t_step}\n')
+
+    u1_nw=np.zeros((len(elmnt_numb),len(u1_[0])))
+    u2_nw=np.zeros((len(elmnt_numb),len(u2_[0])))
 
     #looping over elements
-    for n in element_number:
+    for n in elmnt_numb:
 
-        for i in range(len(u_1[n])):
-            u1_nw[n][i]=u_1[n][i]+du1_dt[n][1]*t_step
+        for i in range(len(u1_[n])):
+            u1_nw[n][i]=u1_[n][i]+du1dt_[n][1]*tstep
 
-        for i in range(len(u_2[n])):
-            u2_nw[n][i]=u_2[n][i]+du2_dt[n][1]*t_step
+        for i in range(len(u2_[n])):
+            u2_nw[n][i]=u2_[n][i]+du2dt_[n][1]*tstep
 
     return u1_nw, u2_nw
 
