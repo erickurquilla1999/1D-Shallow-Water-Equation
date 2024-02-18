@@ -24,6 +24,8 @@ def euler_method(element_number,u_1,u_2,du1_dt, du2_dt):
 
 def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
 
+    print(f'\nWriting step {step} ... \n')
+
     if vel_equal_hu:
         vel=np.where(hgt == 0, 0, np.array(vel)/np.array(hgt))
 
