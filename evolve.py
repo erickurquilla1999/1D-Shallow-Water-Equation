@@ -79,6 +79,8 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_
 
 def compute_time_derivates(element_num,M_inv, Rf1, Rf2 ):
 
+    print('\nComputing time derivatives of u_1 and u_2 ... \n')
+
     du1dt=[]
     du2dt=[]
 
