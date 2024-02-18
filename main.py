@@ -11,7 +11,7 @@ import integrator
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 # generating reference space information
-gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad = basis.generate_reference_space(element_number,nodes_coordinates_phys_space,inputs.n_gauss_poins)
+gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(element_number,nodes_coordinates_phys_space,inputs.n_gauss_poins)
 
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
@@ -27,13 +27,13 @@ M_inverse = evolve.compute_M_matrix_inverse(element_number, element_lengths, gau
 u_1 = h
 u_2 = h*u
 f_1 = u_2
-f_2 = np.where(f1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
+f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
 
-# # evolving in time the PDE
-# for number_of_t_step in np.arange(inputs.n_steps):
+# evolving in time the PDE
+for number_of_t_step in np.arange(inputs.n_steps):
 
-#     #computing residual vector
-#     R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_gauss_coords,basis_derivative_values_at_gauss_coords,left_node_coords, right_node_coords,gauss_weights_in_elements,basis_values_at_ref_coords)
+    #computing residual vector
+    R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad,element_lengths, basis_values_at_nodes)
 
 #     # compute time derivatives of u_1 and u_2
 #     du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)

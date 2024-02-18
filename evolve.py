@@ -28,72 +28,54 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
     return M_inverse
 
-def compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_gauss_coords,basis_derivative_values_at_gauss_coords,left_node_coords, right_node_coords,gauss_weights_in_elements,basis_values_at_ref_coords):
 
-    R_f_1=[]
-    R_f_2=[]
+def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_values_at_gauss_quad_elements, basis_values_time_derivative_at_gauss_quad_elements,element_l, basis_values_at_nods):
 
-    for n in element_number:
-        #interpolationg f_1 to gauss cuadrature
-        f_1_gauss=np.dot(basis_values_at_gauss_coords[n],f_1[n])
-        f_2_gauss=np.dot(basis_values_at_gauss_coords[n],f_2[n])
+    print('\nComputing residual vector ... \n')
 
-        dphi_dx=np.array(basis_derivative_values_at_gauss_coords[n])
+    R_f1=[]
+    R_f2=[]
 
-        # resicual vector 1 
-        R_1_f_1 = 0.5*(right_node_coords[n]-left_node_coords[n])*np.dot(dphi_dx.T,f_1_gauss)
-        R_1_f_2 = 0.5*(right_node_coords[n]-left_node_coords[n])*np.dot(dphi_dx.T,f_2_gauss)
+    for n in element_n:
+        phi = np.array(basis_values_at_gauss_quad_elements[n])
+        dphi_dx = np.array(basis_values_time_derivative_at_gauss_quad_elements[n])
+        weights = gauss_weights_elements[n]
+        delta_x = element_l[n]
 
-        basis_at_initial_ele_node = basis_values_at_ref_coords[n][0]
-        basis_at_final_ele_node = basis_values_at_ref_coords[n][len(basis_values_at_ref_coords[n])-1]
-
-         # computing Roe flux
-        roe_flux_1_left=0
-        roe_flux_1_right=0
-        roe_flux_2_left=0
-        roe_flux_2_right=0
-
-        if n==0:
-            
-            roe_flux_1_left=0
-            roe_flux_2_left=inputs.g*u_1[n][n]**2/2
-
-            Jacobian_right = -inputs.g * 0.5 * ( u_1[n][len(u_1[n])-1] + u_1[n+1][0]) + ( ( f_1[n][len(f_1[n])-1] + f_1[n+1][0] ) / ( u_1[n][len(u_1[n])-1] + u_1[n+1][0] ) ) **2
-            
-            roe_flux_1_right = 0.5 * ( ( f_1[n][len(f_1[n])-1] + f_1[n+1][0] ) ) - 0.5 * Jacobian_right * ( u_1[n][len(u_1[n])-1] + u_1[n+1][0] )
-            roe_flux_2_right = 0.5 * ( ( f_2[n][len(f_2[n])-1] + f_2[n+1][0] ) ) - 0.5 * Jacobian_right * ( u_2[n][len(u_2[n])-1] + u_2[n+1][0] )
+        # Compute M for the current element
+        R1_f1_in_element_n = np.dot(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi),f1[n])
+        R1_f2_in_element_n = np.dot(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi),f2[n])
         
-        elif n==len(element_number)-1:
-        
-            Jacobian_left = -inputs.g * 0.5 * ( u_1[n-1][len(u_1[n])-1] + u_1[n][0]) + ( ( f_1[n-1][len(f_1[n])-1] + f_1[n][0] ) / ( u_1[n-1][len(u_1[n])-1] + u_1[n][0] ) ) **2
-            
-            roe_flux_1_left = 0.5 * ( ( f_1[n-1][len(f_1[n])-1] + f_1[n][0] ) ) - 0.5 * Jacobian_left * ( u_1[n-1][len(u_1[n])-1] + u_1[n][0] )
-            roe_flux_2_left = 0.5 * ( ( f_2[n-1][len(f_2[n])-1] + f_2[n][0] ) ) - 0.5 * Jacobian_left * ( u_2[n-1][len(u_2[n])-1] + u_2[n][0] )
+        # computing Roe flux
+        roe_flux_1_left = roe_flux_1_right = roe_flux_2_left = roe_flux_2_right = 0
 
-            roe_flux_1_right=0
-            roe_flux_2_right=inputs.g*u_1[n][len(f_1[n])-1]**2/2
-
+        if n == 0:
+            roe_flux_2_left = inputs.g * u1[n][n]**2 / 2
+            Jacobian_right = -inputs.g * 0.5 * (u1[n][-1] + u1[n + 1][0]) + ((f1[n][-1] + f1[n + 1][0]) / (u1[n][-1] + u1[n + 1][0]))**2
+            roe_flux_1_right = 0.5 * (f1[n][-1] + f1[n + 1][0]) - 0.5 * Jacobian_right * (u1[n][-1] + u1[n + 1][0])
+            roe_flux_2_right = 0.5 * (f2[n][-1] + f2[n + 1][0]) - 0.5 * Jacobian_right * (u2[n][-1] + u2[n + 1][0])
+        elif n == len(element_n) - 1:
+            Jacobian_left = -inputs.g * 0.5 * (u1[n - 1][-1] + u1[n][0]) + ((f1[n - 1][-1] + f1[n][0]) / (u1[n - 1][-1] + u1[n][0]))**2
+            roe_flux_1_left = 0.5 * (f1[n - 1][-1] + f1[n][0]) - 0.5 * Jacobian_left * (u1[n - 1][-1] + u1[n][0])
+            roe_flux_2_left = 0.5 * (f2[n - 1][-1] + f2[n][0]) - 0.5 * Jacobian_left * (u2[n - 1][-1] + u2[n][0])
+            roe_flux_2_right = inputs.g * u1[n][len(f1[n]) - 1]**2 / 2
         else:
+            Jacobian_left = -inputs.g * 0.5 * (u1[n - 1][-1] + u1[n][0]) + ((f1[n - 1][-1] + f1[n][0]) / (u1[n - 1][-1] + u1[n][0]))**2
+            roe_flux_1_left = 0.5 * (f1[n - 1][-1] + f1[n][0]) - 0.5 * Jacobian_left * (u1[n - 1][-1] + u1[n][0])
+            roe_flux_2_left = 0.5 * (f2[n - 1][-1] + f2[n][0]) - 0.5 * Jacobian_left * (u2[n - 1][-1] + u2[n][0])
+            Jacobian_right = -inputs.g * 0.5 * (u1[n][-1] + u1[n + 1][0]) + ((f1[n][-1] + f1[n + 1][0]) / (u1[n][-1] + u1[n + 1][0]))**2
+            roe_flux_1_right = 0.5 * (f1[n][-1] + f1[n + 1][0]) - 0.5 * Jacobian_right * (u1[n][-1] + u1[n + 1][0])
+            roe_flux_2_right = 0.5 * (f2[n][-1] + f2[n + 1][0]) - 0.5 * Jacobian_right * (u2[n][-1] + u2[n + 1][0])
 
-            Jacobian_left = -inputs.g * 0.5 * ( u_1[n-1][len(u_1[n])-1] + u_1[n][0]) + ( ( f_1[n-1][len(f_1[n])-1] + f_1[n][0] ) / ( u_1[n-1][len(u_1[n])-1] + u_1[n][0] ) ) **2
-            
-            roe_flux_1_left = 0.5 * ( ( f_1[n-1][len(f_1[n])-1] + f_1[n][0] ) ) - 0.5 * Jacobian_left * ( u_1[n-1][len(u_1[n])-1] + u_1[n][0] )
-            roe_flux_2_left = 0.5 * ( ( f_2[n-1][len(f_2[n])-1] + f_2[n][0] ) ) - 0.5 * Jacobian_left * ( u_2[n-1][len(u_2[n])-1] + u_2[n][0] )
-            
-            Jacobian_right = -inputs.g * 0.5 * ( u_1[n][len(u_1[n])-1] + u_1[n+1][0]) + ( ( f_1[n][len(f_1[n])-1] + f_1[n+1][0] ) / ( u_1[n][len(u_1[n])-1] + u_1[n+1][0] ) ) **2
-            
-            roe_flux_1_right = 0.5 * ( ( f_1[n][len(f_1[n])-1] + f_1[n+1][0] ) ) - 0.5 * Jacobian_right * ( u_1[n][len(u_1[n])-1] + u_1[n+1][0] )
-            roe_flux_2_right = 0.5 * ( ( f_2[n][len(f_2[n])-1] + f_2[n+1][0] ) ) - 0.5 * Jacobian_right * ( u_2[n][len(u_2[n])-1] + u_2[n+1][0] )
-
-        # resicual vector 2
-        R_2_f_1 = -(np.array(basis_at_final_ele_node) * np.array(roe_flux_1_right) - np.array(basis_at_initial_ele_node) * np.array(roe_flux_1_left))
-        R_2_f_2 = -(np.array(basis_at_final_ele_node) * np.array(roe_flux_2_right) - np.array(basis_at_initial_ele_node) * np.array(roe_flux_2_right))
+        # residual vector 2
+        R2_f1_in_element_n = -(np.array(basis_values_at_nods[0]) * roe_flux_1_right - np.array(basis_values_at_nods[-1]) * roe_flux_1_left)
+        R2_f2_in_element_n = -(np.array(basis_values_at_nods[0]) * roe_flux_2_right - np.array(basis_values_at_nods[-1]) * roe_flux_2_right)
 
         # adding residual vector 1 and 2
-        R_f_1.append(R_1_f_1+R_2_f_1)
-        R_f_2.append(R_1_f_2+R_2_f_2)
-    
-    return R_f_1, R_f_2
+        R_f1.append(R1_f1_in_element_n+R2_f1_in_element_n)
+        R_f2.append(R1_f2_in_element_n+R2_f2_in_element_n)
+
+    return R_f1, R_f2
 
 def compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2 ):
 
