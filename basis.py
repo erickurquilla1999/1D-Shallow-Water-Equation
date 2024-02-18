@@ -112,4 +112,4 @@ def generate_reference_space(elements, nodes_ref_space, n_gauss_quad_points):
                                 ['elements','nodes_ref_space','basis_func_values_at_nodes_in_ref_space','gauss_coords_ref_space','gauss_weights_ref_space','basis_func_values_at_gauss_quad_in_ref_space','time_derivative_of_basis_func_at_gauss_quad_in_ref_space'],
                                 'generatedfiles/reference_space.h5')
 
-    # return basis_values_at_ref_coords,ref_coords_to_save_data,basis_values_at_the_point_to_save_data,gauss_coords_in_elements,basis_values_at_gauss_coords,gauss_weights_in_elements,basis_derivative_values_at_gauss_coords
+    return gauss_weights_ref_space, basis_func_values_at_gauss_quad_in_ref_space, time_derivative_of_basis_func_at_gauss_quad_in_ref_space
