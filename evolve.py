@@ -5,27 +5,30 @@ import inputs
 import basis
 import os
 
+def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
-def compute_M_matrix_inverse(element_number,basis_values_at_gauss_coords,gauss_weights_in_elements,left_node_coords, right_node_coords):
-    #Lopp over all element
+    print('\nComputing M inverse matrix ... \n')
+    
+    # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
     M_inverse = []
 
-    for n in element_number:
-        phi = np.array(basis_values_at_gauss_coords[n])
-        weights = gauss_weights_in_elements[n]
-        delta_x = right_node_coords[n] - left_node_coords[n]
+    #Lopp over all element
+    for n in elmnt_numb:
+        phi = np.array(basis_values_at_gauss_quad[n])
+        weights = gauss_weights[n]
+        delta_x = element_lgth[n]
         
         # Compute M for the current element
-        M_ele_n = 0.5 * delta_x * np.dot(phi.T * weights, phi)
+        M_in_element_n = 0.5 * delta_x * np.dot(phi.T * weights, phi)
         # Append M to the list
-        M.append(M_ele_n)
+        M.append(M_in_element_n)
 
         # Compute the inverse of M for the current element
-        M_inv_ele_n = np.linalg.inv(M_ele_n)
+        M_inv_in_element_n = np.linalg.inv(M_in_element_n)
 
         # Append the inverse of M to the list
-        M_inverse.append(M_inv_ele_n)
+        M_inverse.append(M_inv_in_element_n)
 
     return M_inverse
 
