@@ -20,5 +20,5 @@ def generate_initial_conditions(nodes_coords_all_elem):
     h_height = [np.array([initial_height(x_n) for x_n in nodes_in_elem]) for nodes_in_elem in nodes_coords_all_elem]
     u_velocity = [np.array([velocity_initial(x_n) for x_n in nodes_in_elem]) for nodes_in_elem in nodes_coords_all_elem]
 
-    return h_height, u_velocity
+    return np.array(h_height), np.array(u_velocity)
 
