@@ -20,8 +20,13 @@ h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_spa
 # wrinting initial conditions file
 integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
 
-# compute matrix M and return the inverse matrix of M
+# compute matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
 M_inverse = evolve.compute_M_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
+
+# compute matrix N_ij = integral dphi_i_dx(x) phi_j(x) dx
+N = evolve.compute_N_matrix(element_number, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, gauss_weights,element_lengths)
+
+print(f'N {N}')
 
 #mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
 # setting the initil conditions to u and f components, u_i and f_i means u and f in component i 

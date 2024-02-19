@@ -28,6 +28,20 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
     return M_inverse
 
+def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
+
+    N_matrix=[]
+
+    for n in elem_num:
+        phi = np.array(basis_vals_at_gauss_quad_elements[n])
+        dphi_dx = np.array(basis_vals_time_derivative_at_gauss_quad_elements[n])
+        weights = gauss_weights_elmts[n]
+        delta_x = elmnt_l[n]
+
+        # Compute N for the current element
+        N_matrix.append(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi))
+
+    return N_matrix
 
 def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_values_at_gauss_quad_elements, basis_values_time_derivative_at_gauss_quad_elements,element_l, basis_values_at_nods):
 
