@@ -30,6 +30,9 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
 def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
 
+    print('Computing N inverse matrix ... ')
+    
+    # N_ij = integral dphi_i_dx(x) phi_j(x) dx
     N_matrix=[]
 
     for n in elem_num:
@@ -43,7 +46,7 @@ def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_tim
 
     return N_matrix
 
-def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_values_at_gauss_quad_elements, basis_values_time_derivative_at_gauss_quad_elements,element_l, basis_values_at_nods):
+def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
 
     print('Computing residual vector ... ')
 
@@ -51,14 +54,10 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,gauss_weights_elements, basis_
     R_f2=[]
 
     for n in element_n:
-        phi = np.array(basis_values_at_gauss_quad_elements[n])
-        dphi_dx = np.array(basis_values_time_derivative_at_gauss_quad_elements[n])
-        weights = gauss_weights_elements[n]
-        delta_x = element_l[n]
 
-        # Compute M for the current element
-        R1_f1_in_element_n = np.dot(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi),f1[n])
-        R1_f2_in_element_n = np.dot(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi),f2[n])
+        # Compute R for fist term this is: integral dphi_i_dx(x) phi_j(x) dx f_j
+        R1_f1_in_element_n = np.dot(N_matx[n],f1[n])
+        R1_f2_in_element_n = np.dot(N_matx[n],f2[n])
         
         # computing Roe flux
         roe_flux_1_left = roe_flux_1_right = roe_flux_2_left = roe_flux_2_right = 0

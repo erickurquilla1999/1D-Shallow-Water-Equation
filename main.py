@@ -26,8 +26,6 @@ M_inverse = evolve.compute_M_matrix_inverse(element_number, element_lengths, gau
 # compute matrix N_ij = integral dphi_i_dx(x) phi_j(x) dx
 N = evolve.compute_N_matrix(element_number, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, gauss_weights,element_lengths)
 
-print(f'N {N}')
-
 #mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
 # setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
 u_1 = h
@@ -39,7 +37,7 @@ f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2
 for number_of_t_step in np.arange(inputs.n_steps):
 
     #computing residual vector
-    R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad,element_lengths, basis_values_at_nodes)
+    R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N)
 
     # compute time derivatives of u_1 and u_2
     du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
