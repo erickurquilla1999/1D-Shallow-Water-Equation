@@ -15,10 +15,10 @@ def euler_method(elmnt_numb,u1_,u2_,du1dt_, du2dt_,tstep,numb_t_step):
     for n in elmnt_numb:
 
         for i in range(len(u1_[n])):
-            u1_nw[n][i]=u1_[n][i]+du1dt_[n][1]*tstep
+            u1_nw[n][i]=u1_[n][i]+du1dt_[n][i]*tstep
 
         for i in range(len(u2_[n])):
-            u2_nw[n][i]=u2_[n][i]+du2dt_[n][1]*tstep
+            u2_nw[n][i]=u2_[n][i]+du2dt_[n][i]*tstep
 
     return u1_nw, u2_nw
 
@@ -57,10 +57,10 @@ def rk4_method(elmnt_numb, u1,u2,f1,f2, basis_vals_at_nods, Nmatrix, Minv, times
         for n in elmnt_numb:
 
             for i in range(len(du1_dt_[n])):
-                k_u1[n][i]=du1_dt_[n][1]*tstep
+                k_u1[n][i]=du1_dt_[n][i]*tstep
 
             for i in range(len(du2_dt_[n])):
-                k_u2[n][i]=du2_dt_[n][1]*tstep
+                k_u2[n][i]=du2_dt_[n][i]*tstep
         return k_u1, k_u2
 
     # computing k1
