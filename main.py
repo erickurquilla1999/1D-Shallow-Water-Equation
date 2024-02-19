@@ -6,6 +6,7 @@ import basis
 import initial_conditions
 import evolve 
 import integrator
+import plots
 
 # creating mesh
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
@@ -49,5 +50,8 @@ for number_of_t_step in np.arange(inputs.n_steps):
     u_2 = u_2_new
     f_1 = u_2
     f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
+
+# plotting data
+plots.plotting(inputs.plot_every_steps)
 
 print(f'Done')
