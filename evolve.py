@@ -46,16 +46,9 @@ def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_tim
 
     return N_matrix
 
-def compute_residual_vector(element_n,h_,u_,basis_values_at_nods,N_matx):
+def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
 
     print('Computing residual vector ... ')
-
-    #mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
-    # setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
-    u1 = h_
-    u2 = h_*u_
-    f1 = u2
-    f2 = np.where(u1 == 0, 0, np.array(u2)**2 / u1 + inputs.g * np.array(u1)**2 / 2)
 
     R_f1=[]
     R_f2=[]

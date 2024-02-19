@@ -26,17 +26,28 @@ M_inverse = evolve.compute_M_matrix_inverse(element_number, element_lengths, gau
 # compute matrix N_ij = integral dphi_i_dx(x) phi_j(x) dx
 N = evolve.compute_N_matrix(element_number, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, gauss_weights,element_lengths)
 
+#mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
+# setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
+u_1 = h
+u_2 = h * u
+f_1 = h
+f_2 = h * u**2 + inputs.g * h**2 / 2
+
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
 
-    #computing residual vector
-    R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,h,u,basis_values_at_nodes,N)
+    # If true using euler method otherwise use RK4
+    if inputs.evolution_method==0:
+        #computing residual vector
+        R_f_1, R_f_2 = evolve.compute_residual_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N)
 
-    # compute time derivatives of u_1 and u_2
-    du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
+        # # # compute time derivatives of u_1 and u_2
+        du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
 
-    # evolving in time with euler method
-    u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
+        # # evolving in time with euler method
+        u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
+    else:
+        u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,inputs.t_step,number_of_t_step+1)
 
     # saving the data
     integrator.write_data_file(element_number,nodes_coordinates_phys_space,u_1_new,u_2_new,True,number_of_t_step+1)
