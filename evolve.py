@@ -60,8 +60,6 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
         R1_f2_in_element_n = np.dot(N_matx[n],f2[n])
         
         # computing Roe flux
-        roe_flux_1_left = roe_flux_1_right = roe_flux_2_left = roe_flux_2_right = 0
-
         if n == 0:
 
             u1_av_right = 0.5*(u1[n][-1]+u1[n+1][0])
@@ -72,16 +70,16 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
             eigenvalues_jacobian_right, eigenvectors_jacobian_right = np.linalg.eig(jacobian_right)
             abs_A_right = np.dot(eigenvectors_jacobian_right,np.dot(np.diag(np.abs(eigenvalues_jacobian_right)),np.linalg.inv(eigenvectors_jacobian_right)))
 
-            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n] + u1[n+1] ) - 0.5 * abs_A_right[0][1] * ( u2[n] + u2[n+1] )
-            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n] + u1[n+1] ) - 0.5 * abs_A_right[1][1] * ( u2[n] + u2[n+1] )
+            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[0][1] * ( u2[n+1] - u2[n] )
+            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[1][1] * ( u2[n+1] - u2[n] )
 
             # creating matrix P_ij=phi_i*phi_j
             P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
             P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_left, u2[n] - u2[n] )-np.dot(P_right,vec_1_right)
-            R2_f2_in_element_n = np.dot(P_left, 0.5 * inputs.g * u1[n]**2 )-np.dot(P_right,vec_2_right)
+            R2_f1_in_element_n = np.dot(P_right,vec_1_right) - np.dot(P_left, u2[n] - u2[n] )
+            R2_f2_in_element_n = np.dot(P_right,vec_2_right) - np.dot(P_left, 0.5 * inputs.g * u1[n]**2 )
 
         elif n == len(element_n) - 1:
 
@@ -93,16 +91,16 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
             eigenvalues_jacobian_left, eigenvectors_jacobian_left = np.linalg.eig(jacobian_left)
             abs_A_left = np.dot(eigenvectors_jacobian_left,np.dot(np.diag(np.abs(eigenvalues_jacobian_left)),np.linalg.inv(eigenvectors_jacobian_left)))
 
-            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n-1] + u1[n] ) - 0.5 * abs_A_left[0][1] * ( u2[n-1] + u2[n] )
-            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n-1] + u1[n] ) - 0.5 * abs_A_left[1][1] * ( u2[n-1] + u2[n] )
+            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[0][1] * ( u2[n] - u2[n-1] )
+            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[1][1] * ( u2[n] - u2[n-1] )
 
             # creating matrix P_ij=phi_i*phi_j
             P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
             P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_left,vec_1_left)-np.dot(P_right, u2[n] - u2[n] )
-            R2_f2_in_element_n = np.dot(P_left,vec_2_left)-np.dot(P_right, 0.5 * inputs.g * u1[n]**2 )
+            R2_f1_in_element_n = np.dot(P_right, u2[n] - u2[n] ) - np.dot(P_left,vec_1_left)
+            R2_f2_in_element_n = np.dot(P_right, 0.5 * inputs.g * u1[n]**2 ) - np.dot(P_left,vec_2_left)
 
         else:
 
@@ -121,23 +119,26 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
             eigenvalues_jacobian_left, eigenvectors_jacobian_left = np.linalg.eig(jacobian_left)
             abs_A_left = np.dot(eigenvectors_jacobian_left,np.dot(np.diag(np.abs(eigenvalues_jacobian_left)),np.linalg.inv(eigenvectors_jacobian_left)))
 
-            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n-1] + u1[n] ) - 0.5 * abs_A_left[0][1] * ( u2[n-1] + u2[n] )
-            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n-1] + u1[n] ) - 0.5 * abs_A_left[1][1] * ( u2[n-1] + u2[n] )
+            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[0][1] * ( u2[n] - u2[n-1] )
+            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[1][1] * ( u2[n] - u2[n-1] )
 
-            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n] + u1[n+1] ) - 0.5 * abs_A_right[0][1] * ( u2[n] + u2[n+1] )
-            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n] + u1[n+1] ) - 0.5 * abs_A_right[1][1] * ( u2[n] + u2[n+1] )
+            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[0][1] * ( u2[n+1] - u2[n] )
+            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[1][1] * ( u2[n+1] - u2[n] )
 
             # creating matrix P_ij=phi_i*phi_j
             P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
             P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_left,vec_1_left)-np.dot(P_right,vec_1_right)
-            R2_f2_in_element_n = np.dot(P_left,vec_2_left)-np.dot(P_right,vec_2_right)
+            R2_f1_in_element_n = np.dot(P_right,vec_1_right) - np.dot(P_left,vec_1_left)
+            R2_f2_in_element_n = np.dot(P_right,vec_2_right) - np.dot(P_left,vec_2_left)
 
         # adding residual vector 1 and 2
-        R_f1.append(np.array(R1_f1_in_element_n)+np.array(R2_f1_in_element_n))
-        R_f2.append(np.array(R1_f2_in_element_n)+np.array(R2_f2_in_element_n))
+        R_f1.append(R1_f1_in_element_n-R2_f1_in_element_n)
+        R_f2.append(R1_f2_in_element_n-R2_f2_in_element_n)
+
+        # R_f1.append(R1_f1_in_element_n)
+        # R_f2.append(R1_f2_in_element_n)
 
     return R_f1, R_f2
 
