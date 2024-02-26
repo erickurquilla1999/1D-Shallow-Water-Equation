@@ -48,7 +48,7 @@ def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_tim
 
 def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
 
-    print('Computing residual vector ... ')
+    # print('Computing residual vector ... ')
 
     R_f1=[]
     R_f2=[]
@@ -62,89 +62,99 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
         # computing Roe flux
         if n == 0:
 
-            u1_av_right = 0.5*(u1[n][-1]+u1[n+1][0])
-            u2_av_right = 0.5*(u1[n][-1]+u1[n+1][0])
+            # computing roe flux at x=b, i.e. the end of the element
 
-            jacobian_right = [ [ 0 , 1 ] , [ inputs.g * u1_av_right - ( u2_av_right / u1_av_right )**2, 2 * u2_av_right / u1_av_right ] ]
+            u1_av_b = 0.5*(u1[n][-1]+u1[n+1][0])
+            u2_av_b = 0.5*(u2[n][-1]+u2[n+1][0])
 
-            eigenvalues_jacobian_right, eigenvectors_jacobian_right = np.linalg.eig(jacobian_right)
-            abs_A_right = np.dot(eigenvectors_jacobian_right,np.dot(np.diag(np.abs(eigenvalues_jacobian_right)),np.linalg.inv(eigenvectors_jacobian_right)))
+            jacobian_b = [ [ 0 , 1 ] , [ inputs.g * u1_av_b - ( u2_av_b / u1_av_b )**2, 2 * u2_av_b / u1_av_b ] ]
 
-            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[0][1] * ( u2[n+1] - u2[n] )
-            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[1][1] * ( u2[n+1] - u2[n] )
+            eigenvalues_jacobian_b, eigenvectors_jacobian_b = np.linalg.eig(jacobian_b)
+
+            abs_A_b = eigenvectors_jacobian_b @ np.diag(np.abs(eigenvalues_jacobian_b)) @ np.linalg.inv(eigenvectors_jacobian_b)
+
+            vec_1_b = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_b[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[0][1] * ( u2[n+1] - u2[n] )
+            vec_2_b = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_b[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[1][1] * ( u2[n+1] - u2[n] )
 
             # creating matrix P_ij=phi_i*phi_j
-            P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
+            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
+            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_right,vec_1_right) - np.dot(P_left, u2[n] - u2[n] )
-            R2_f2_in_element_n = np.dot(P_right,vec_2_right) - np.dot(P_left, 0.5 * inputs.g * u1[n]**2 )
+            R2_f1_in_element_n = np.dot(P_b,vec_1_b) - np.dot(P_a, u2[n] - u2[n] )
+            R2_f2_in_element_n = np.dot(P_b,vec_2_b) - np.dot(P_a, 0.5 * inputs.g * u1[n]**2 )
 
         elif n == len(element_n) - 1:
 
-            u1_av_left = 0.5*(u1[n][0]+u1[n-1][-1])
-            u2_av_left = 0.5*(u2[n][0]+u2[n-1][-1])
+            # computing roe flux at x=a, i.e. the begining of the element
 
-            jacobian_left = [ [ 0 , 1 ] , [ inputs.g * u1_av_left - ( u2_av_left / u1_av_left )**2, 2 * u2_av_left / u1_av_left ] ]
+            u1_average_a = 0.5*(u1[n-1][-1]+u1[n][0])
+            u2_average_a = 0.5*(u2[n-1][-1]+u2[n][0])
+            
+            jacobian_a = [ [ 0 , 1 ] , [ inputs.g * u1_average_a - ( u2_average_a / u1_average_a )**2 , 2 * u2_average_a / u1_average_a ] ]
 
-            eigenvalues_jacobian_left, eigenvectors_jacobian_left = np.linalg.eig(jacobian_left)
-            abs_A_left = np.dot(eigenvectors_jacobian_left,np.dot(np.diag(np.abs(eigenvalues_jacobian_left)),np.linalg.inv(eigenvectors_jacobian_left)))
+            eigenvalues_jacobian_a, eigenvectors_jacobian_a = np.linalg.eig(jacobian_a)
 
-            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[0][1] * ( u2[n] - u2[n-1] )
-            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[1][1] * ( u2[n] - u2[n-1] )
+            abs_A_a = eigenvectors_jacobian_a @ np.diag(np.abs(eigenvalues_jacobian_a)) @ np.linalg.inv(eigenvectors_jacobian_a)
+
+            vec_1_a = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_a[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[0][1] * ( u2[n] - u2[n-1] )
+            vec_2_a = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_a[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[1][1] * ( u2[n] - u2[n-1] )
 
             # creating matrix P_ij=phi_i*phi_j
-            P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
+            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
+            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_right, u2[n] - u2[n] ) - np.dot(P_left,vec_1_left)
-            R2_f2_in_element_n = np.dot(P_right, 0.5 * inputs.g * u1[n]**2 ) - np.dot(P_left,vec_2_left)
+            R2_f1_in_element_n = np.dot(P_b, u2[n] - u2[n] ) - np.dot(P_a,vec_1_a)
+            R2_f2_in_element_n = np.dot(P_b, 0.5 * inputs.g * u1[n]**2 ) - np.dot(P_a,vec_2_a)
 
         else:
 
-            u1_av_left = 0.5*(u1[n][0]+u1[n-1][-1])
-            u2_av_left = 0.5*(u2[n][0]+u2[n-1][-1])
+            # computing roe flux at x=a, i.e. the begining of the element
 
-            u1_av_right = 0.5*(u1[n][-1]+u1[n+1][0])
-            u2_av_right = 0.5*(u1[n][-1]+u1[n+1][0])
+            u1_average_a = 0.5*(u1[n-1][-1]+u1[n][0])
+            u2_average_a = 0.5*(u2[n-1][-1]+u2[n][0])
+            
+            jacobian_a = [ [ 0 , 1 ] , [ inputs.g * u1_average_a - ( u2_average_a / u1_average_a )**2 , 2 * u2_average_a / u1_average_a ] ]
 
-            jacobian_right = [ [ 0 , 1 ] , [ inputs.g * u1_av_right - ( u2_av_right / u1_av_right )**2, 2 * u2_av_right / u1_av_right ] ]
-            jacobian_left = [ [ 0 , 1 ] , [ inputs.g * u1_av_left - ( u2_av_left / u1_av_left )**2, 2 * u2_av_left / u1_av_left ] ]
+            eigenvalues_jacobian_a, eigenvectors_jacobian_a = np.linalg.eig(jacobian_a)
 
-            eigenvalues_jacobian_right, eigenvectors_jacobian_right = np.linalg.eig(jacobian_right)
-            abs_A_right = np.dot(eigenvectors_jacobian_right,np.dot(np.diag(np.abs(eigenvalues_jacobian_right)),np.linalg.inv(eigenvectors_jacobian_right)))
+            abs_A_a = eigenvectors_jacobian_a @ np.diag(np.abs(eigenvalues_jacobian_a)) @ np.linalg.inv(eigenvectors_jacobian_a)
 
-            eigenvalues_jacobian_left, eigenvectors_jacobian_left = np.linalg.eig(jacobian_left)
-            abs_A_left = np.dot(eigenvectors_jacobian_left,np.dot(np.diag(np.abs(eigenvalues_jacobian_left)),np.linalg.inv(eigenvectors_jacobian_left)))
+            vec_1_a = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_a[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[0][1] * ( u2[n] - u2[n-1] )
+            vec_2_a = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_a[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[1][1] * ( u2[n] - u2[n-1] )
 
-            vec_1_left = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_left[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[0][1] * ( u2[n] - u2[n-1] )
-            vec_2_left = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_left[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_left[1][1] * ( u2[n] - u2[n-1] )
+            # computing roe flux at x=b, i.e. the end of the element
 
-            vec_1_right = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_right[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[0][1] * ( u2[n+1] - u2[n] )
-            vec_2_right = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_right[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_right[1][1] * ( u2[n+1] - u2[n] )
+            u1_av_b = 0.5*(u1[n][-1]+u1[n+1][0])
+            u2_av_b = 0.5*(u2[n][-1]+u2[n+1][0])
+
+            jacobian_b = [ [ 0 , 1 ] , [ inputs.g * u1_av_b - ( u2_av_b / u1_av_b )**2, 2 * u2_av_b / u1_av_b ] ]
+
+            eigenvalues_jacobian_b, eigenvectors_jacobian_b = np.linalg.eig(jacobian_b)
+
+            abs_A_b = eigenvectors_jacobian_b @ np.diag(np.abs(eigenvalues_jacobian_b)) @ np.linalg.inv(eigenvectors_jacobian_b)
+
+            vec_1_b = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_b[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[0][1] * ( u2[n+1] - u2[n] )
+            vec_2_b = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_b[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[1][1] * ( u2[n+1] - u2[n] )
 
             # creating matrix P_ij=phi_i*phi_j
-            P_left=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_right=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
+            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
+            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
 
             # residual vector 2
-            R2_f1_in_element_n = np.dot(P_right,vec_1_right) - np.dot(P_left,vec_1_left)
-            R2_f2_in_element_n = np.dot(P_right,vec_2_right) - np.dot(P_left,vec_2_left)
+            R2_f1_in_element_n = np.dot(P_b,vec_1_b) - np.dot(P_a,vec_1_a)
+            R2_f2_in_element_n = np.dot(P_b,vec_2_b) - np.dot(P_a,vec_2_a)
 
         # adding residual vector 1 and 2
         R_f1.append(R1_f1_in_element_n-R2_f1_in_element_n)
         R_f2.append(R1_f2_in_element_n-R2_f2_in_element_n)
 
-        # R_f1.append(R1_f1_in_element_n)
-        # R_f2.append(R1_f2_in_element_n)
-
     return R_f1, R_f2
 
 def compute_time_derivates(element_num,M_inv, Rf1, Rf2 ):
 
-    print('Computing time derivatives of u_1 and u_2 ... ')
+    # print('Computing time derivatives of u_1 and u_2 ... ')
 
     du1dt=[]
     du2dt=[]
