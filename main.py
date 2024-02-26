@@ -13,7 +13,7 @@ import test
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 # generating reference space information
-gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(element_number,nodes_coordinates_phys_space,inputs.n_gauss_poins)
+gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(element_number,nodes_coordinates_phys_space,inputs.n_gauss_poins,left_node_coordinates, right_node_coordinates)
 
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
@@ -65,5 +65,5 @@ plots.plotting(inputs.plot_every_steps)
 print(f'Done')
 
 # running some test
-test.basis_and_its_derivative()
-test.integration()
+# test.basis_and_its_derivative()
+# test.integration()

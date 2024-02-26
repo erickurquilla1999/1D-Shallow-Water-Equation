@@ -60,7 +60,7 @@ def lagrange_basis_derivative(nodes, i, x):
             basis_derivative += pc/(nodes[i]-nodes[j])
     return basis_derivative
 
-def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
+def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points,l_elem_coordinates, r_elem_coordinates):
 
     print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
 
@@ -79,7 +79,7 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
     gauss_coords_ref_space, gauss_quad_weights = np.polynomial.legendre.leggauss(n_gauss_quad_points)
     
     # saving Gauss cuadrature in physical space
-    gauss_coords_phys_space = [[0.5*(node[0]+node[len(node)-1])-0.5*(node[0]-node[len(node)-1])*e for e in gauss_coords_ref_space] for node in nodes_phys_space]
+    gauss_coords_phys_space = [[0.5*(l_elem_coordinates[n]+r_elem_coordinates[n])-0.5*(l_elem_coordinates[n]-r_elem_coordinates[n])*e for e in gauss_coords_ref_space] for n in elements]
 
     # saving gauss coordinates and weigths all of them are the same for each element
     gauss_coords_ref_space = [gauss_coords_ref_space for _ in elements]
