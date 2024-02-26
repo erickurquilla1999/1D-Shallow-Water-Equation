@@ -1,6 +1,7 @@
 import numpy as np
 import basis
 import matplotlib.pyplot as plt
+import evolve 
 
 def basis_and_its_derivative():
     
@@ -47,7 +48,7 @@ def basis_and_its_derivative():
 
 def integration():
 
-    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[-1,0,1]],10)
+    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[-1,0,1]],10,[-1],[1])
 
     x= np.array([-1,0,1])
     funtion_at_nodes = (x**2)*np.array(3)
@@ -64,3 +65,15 @@ def integration():
     print(f'\nintegrating x * dphi_1/dx from -1 to 1')
     print(f'gauss integration: {integral}')
     print(f'real integration: {0.66666666666666666}')
+
+def M_matrix():
+    
+    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[0,0.5,1]],30,[0],[1])
+    M_inverse = evolve.compute_M_matrix_inverse([0], [1], gauss_weights, basis_values_at_gauss_quad)
+    print(f'M matrix test')
+    print(f'Value in the code {np.linalg.inv(M_inverse)}')
+    print(f'Theory [0.1333333333,0.0666666666,-0.0333333333],[ - , 0.5333333333,0.0666666666],[ - , - , 0.13333333]')
+    print(f'Unit matrix {M_inverse @ np.linalg.inv(M_inverse)}')
+
+
+
