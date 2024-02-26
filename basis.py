@@ -7,7 +7,7 @@ def lagrange_basis(nodes, i, x):
 
     Parameters:
         nodes (numpy.ndarray): Array of Lagrange nodes.
-        k (int): Index of the Lagrange node for which to compute the basis function.
+        i (int): Index of the Lagrange node for which to compute the basis function.
         x (float): Point at which to evaluate the basis function.
 
     Returns:
@@ -66,7 +66,7 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
 
     # saving basis function evaluated at nodes in physical space
     # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
-    #                                             [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]
+    #                                              [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]
     basis_func_values_at_nodes_in_phys_space = [
         [
             [lagrange_basis(nodes, base_index, x) for base_index in range(len(nodes))]
@@ -87,7 +87,7 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
 
     # evaluating the basis function in the gauss quadrature points
     # basis_func_values_at_gauss_quad_in_phys_space = [ [phi_1(gauss_coords_1), phi_2(gauss_coords_1) , ... , phi_p(gauss_coords_1)] , 
-    #                                                  [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
+    #                                                   [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
     basis_func_values_at_gauss_quad_in_phys_space = [
         [
             [lagrange_basis(nodes, base_index, x) for base_index in range(len(nodes))]
@@ -98,7 +98,7 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points):
 
     # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
     # time_derivative_of_basis_func_at_gauss_quad_in_phys_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
-    #                                                              [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
+    #                                                               [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
     time_derivative_of_basis_func_at_gauss_quad_in_phys_space = [
         [
             [lagrange_basis_derivative(nodes, base_index, x) for base_index in range(len(nodes))]
