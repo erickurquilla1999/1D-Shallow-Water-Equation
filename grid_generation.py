@@ -20,10 +20,16 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
     element_length = np.diff(elements_division)
 
     # Compute nodes physical space inside each element
-    nodes_coord_phys_space = [np.linspace(elements_division[i], elements_division[i + 1], basis_order + 1) for i in elements_numb]
+    if basis_order != 0 :
+        nodes_coord_phys_space = [np.linspace(elements_division[i], elements_division[i + 1], basis_order + 1) for i in elements_numb]
+    else:
+        nodes_coord_phys_space = [elements_division[i] + 0.5 * ( elements_division[i+1] - elements_division[i]) for i in elements_numb]
 
     # Compute nodes refrecne space inside each element
-    nodes_coord_ref_space = [np.linspace(-1, 1, basis_order + 1) for _ in elements_numb]
+    if basis_order != 0 :
+        nodes_coord_ref_space = [np.linspace(-1, 1, basis_order + 1) for _ in elements_numb]
+    else:
+        nodes_coord_ref_space = [ 0 for _ in elements_numb]
 
     # Check if the directory exists
     directory = 'generatedfiles'
