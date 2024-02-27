@@ -31,7 +31,7 @@ stiffness_matrix = evolve.compute_stiffness_matrix(element_number, basis_values_
 # setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
 u_1 = h
 u_2 = h * u
-f_1 = h
+f_1 = h * u
 f_2 = h * u**2 + inputs.g * h**2 / 2
 
 # evolving in time the PDE
@@ -41,23 +41,23 @@ for number_of_t_step in np.arange(inputs.n_steps):
     if inputs.evolution_method==0:
         
         # computing stiffness vector
-        stiffness_vector_1 = [stif_mtx @ u_1_ for stif_mtx, u_1_ in zip(stiffness_matrix, u_1)]
-        stiffness_vector_2 = [stif_mtx @ u_2_ for stif_mtx, u_2_ in zip(stiffness_matrix, u_2)]
+        stiffness_vector_1 = np.array([stif_mtx @ f_1_ for stif_mtx, f_1_ in zip(stiffness_matrix, f_1)])
+        stiffness_vector_2 = np.array([stif_mtx @ f_2_ for stif_mtx, f_2_ in zip(stiffness_matrix, f_2)])
 
         # computing numerical flux
         numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
 
         # computing residual vector
-        residual_vector_1 = stiffness_vector_1 + numerical_flux_vector_1
-        residual_vector_2 = stiffness_vector_2 + numerical_flux_vector_2
+        residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
+        residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2
 
         # compute time derivatives of u_1 and u_2
         du1_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_inverse, residual_vector_1)]
         du2_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
 
         # evolving in time with euler method
-        u_1_new = u_1 + du1_dt * inputs.t_step
-        u_2_new = u_2 + du2_dt * inputs.t_step
+        u_1_new = u_1 + du1_dt * np.array(inputs.t_step)
+        u_2_new = u_2 + du2_dt * np.array(inputs.t_step)
 
     else:
         u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,np.array(inputs.t_step),number_of_t_step+1)
@@ -77,8 +77,8 @@ plots.plotting()
 
 print(f'Done')
 
-# running some test
-test.basis_and_its_derivative()
-test.integration()
-test.M_matrix()
-test.N_matrix()
+# # running some test
+# test.basis_and_its_derivative()
+# test.integration()
+# test.M_matrix()
+# test.N_matrix()
