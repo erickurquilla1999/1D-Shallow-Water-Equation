@@ -1,9 +1,9 @@
 import numpy as np
 import inputs
 
-def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
+def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
-    print('Computing M inverse matrix ... ')
+    print('Computing mass inverse matrix ... ')
     
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
@@ -28,9 +28,9 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
     return M_inverse
 
-def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
+def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
 
-    print('Computing N matrix ... ')
+    print('Computing stiffness matrix ... ')
     
     # N_ij = integral dphi_i_dx(x) phi_j(x) dx
     N_matrix=[]
@@ -46,7 +46,20 @@ def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_tim
 
     return N_matrix
 
-def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
+def compute_stiffness_vector(ele_n,_f1_,_f2_,stiff_matx):
+    
+    # computing stiffness vector
+    stiff_vec_1 = []
+    stiff_vec_1 = []
+
+    for n in ele_n:
+        stiff_vec_1.append(stiff_matx[n] @ _f1_[n])
+        stiff_vec_2.append(stiff_matx[n] @ _f2_[n])
+    
+    return stiff_vec_1, stiff_vec_2
+
+
+def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
 
     roe_fluxex_1 = []
     roe_fluxex_2 = []
@@ -61,11 +74,6 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
 
         eigenvalues_jacobian, eigenvectors_jacobian = np.linalg.eig(jacobian)
 
-        # Sort eigenvalues and corresponding eigenvectors
-        idx_sorted = np.argsort(eigenvalues_jacobian)
-        eigenvalues_jacobian = eigenvalues_jacobian[idx_sorted]
-        eigenvectors_jacobian = (eigenvectors_jacobian.T[:, idx_sorted]).T
-
         # Construct the modified Roe matrix
         abs_A = eigenvectors_jacobian @ np.diag(np.abs(eigenvalues_jacobian)) @ np.linalg.inv(eigenvectors_jacobian)
 
@@ -76,49 +84,26 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
     P_a=np.outer(basis_values_at_nods[0][0],basis_values_at_nods[0][0])
     P_b=np.outer(basis_values_at_nods[0][-1],basis_values_at_nods[0][-1])
 
-    # print('Computing residual vector ... ')
+    # computing the difference between the numerical fluxe in limits of the element
 
-    R_f1=[]
-    R_f2=[]
+    numerical_flux_1=[]
+    numerical_flux_2=[]
 
     for n in element_n:
-
-        # Compute R for fist term this is: integral dphi_i_dx(x) phi_j(x) dx f_j
-        R1_f1_in_element_n = np.dot(N_matx[n],f1[n])
-        R1_f2_in_element_n = np.dot(N_matx[n],f2[n])
         
-        # computing Roe flux
         if n == 0:
 
-            R2_f1_in_element_n = P_b @ roe_fluxex_1[0] - P_a @ ( u2[n] - u2[n] )
-            R2_f2_in_element_n = P_b @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 )
+            numerical_flux_1.append( P_b @ roe_fluxex_1[0] - P_a @ ( u2[n] - u2[n] ) )
+            numerical_flux_2.append( @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
 
         elif n == element_n[-1]:
 
-            R2_f1_in_element_n = P_b @ ( u2[n] - u2[n] ) - P_a @ roe_fluxex_1[-1]
-            R2_f2_in_element_n = P_b @ ( 0.5 * inputs.g * u1[n]**2 ) - P_a @ roe_fluxex_2[-1]
+            numerical_flux_1.append( P_b @ ( u2[n] - u2[n] ) - P_a @ roe_fluxex_1[-1] )
+            numerical_flux_2.append( P_b @ ( 0.5 * inputs.g * u1[n]**2 ) - P_a @ roe_fluxex_2[-1] )
 
         else:
 
-            R2_f1_in_element_n = P_b @ roe_fluxex_1[n] - P_a @ roe_fluxex_1[n-1]
-            R2_f2_in_element_n = P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1]
+            numerical_flux_1.append( P_b @ roe_fluxex_1[n] - P_a @ roe_fluxex_1[n-1] )
+            numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1] )
 
-        # adding residual vector 1 and 2
-        R_f1.append(R1_f1_in_element_n-R2_f1_in_element_n)
-        R_f2.append(R1_f2_in_element_n-R2_f2_in_element_n)
-
-    return R_f1, R_f2
-
-def compute_time_derivates(element_num,M_inv, Rf1, Rf2 ):
-
-    # print('Computing time derivatives of u_1 and u_2 ... ')
-
-    du1dt=[]
-    du2dt=[]
-
-    #Lopp over all element
-    for n in element_num:
-        du1dt.append(np.dot(M_inv[n],Rf1[n]))    
-        du2dt.append(np.dot(M_inv[n],Rf2[n])) 
-
-    return du1dt, du2dt
+    return numerical_flux_1, numerical_flux_2
