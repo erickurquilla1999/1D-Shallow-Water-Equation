@@ -30,7 +30,7 @@ def compute_M_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_value
 
 def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
 
-    print('Computing N inverse matrix ... ')
+    print('Computing N matrix ... ')
     
     # N_ij = integral dphi_i_dx(x) phi_j(x) dx
     N_matrix=[]

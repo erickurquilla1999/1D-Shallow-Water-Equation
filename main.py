@@ -48,10 +48,11 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # evolving in time with euler method
         u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
     else:
-        u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,inputs.t_step,number_of_t_step+1)
+        u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,np.array(inputs.t_step),number_of_t_step+1)
 
     # saving the data
-    integrator.write_data_file(element_number,nodes_coordinates_phys_space,u_1_new,u_2_new,True,number_of_t_step+1)
+    if (number_of_t_step+1) % inputs.write_every_steps == 0:
+        integrator.write_data_file(element_number,nodes_coordinates_phys_space,u_1_new,u_2_new,True,number_of_t_step+1)
 
     # saving new quantities to evolve next time step
     u_1 = u_1_new
@@ -60,7 +61,7 @@ for number_of_t_step in np.arange(inputs.n_steps):
     f_2 = np.where(u_1 == 0, 0, np.array(u_2)**2 / u_1 + inputs.g * np.array(u_1)**2 / 2)
 
 # plotting data
-plots.plotting(inputs.plot_every_steps)
+plots.plotting()
 
 print(f'Done')
 

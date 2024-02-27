@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import utilities
 
-def plotting(plotevery_n_steps):
+def plotting():
 
     print('Plotting data ... ')
         
@@ -27,7 +27,7 @@ def plotting(plotevery_n_steps):
     # Sort the list based on the numbers after the underscore
     files = sorted(files, key=sort_key)
 
-    for file in files[::plotevery_n_steps]:
+    for file in files:
     
         print(f'Plotting {file}')
          
