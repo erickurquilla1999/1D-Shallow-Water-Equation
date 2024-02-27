@@ -41,10 +41,11 @@ for number_of_t_step in np.arange(inputs.n_steps):
     if inputs.evolution_method==0:
         
         # computing stiffness vector
-        stiffness_vector_1, stiffness_vector_2 = evolve.compute_stiffness_vector(element_number,f_1,f_2,stiffness_matrix):
+        stiffness_vector_1 = [stif_mtx @ u_1_ for stif_mtx, u_1_ in zip(stiffness_matrix, u_1)]
+        stiffness_vector_2 = [stif_mtx @ u_2_ for stif_mtx, u_2_ in zip(stiffness_matrix, u_2)]
 
         # computing numerical flux
-        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes):
+        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
 
         # computing residual vector
         residual_vector_1 = stiffness_vector_1 + numerical_flux_vector_1
@@ -55,7 +56,8 @@ for number_of_t_step in np.arange(inputs.n_steps):
         du2_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
 
         # evolving in time with euler method
-        u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
+        u_1_new = u_1 + du1_dt * inputs.t_step
+        u_2_new = u_2 + du2_dt * inputs.t_step
 
     else:
         u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,np.array(inputs.t_step),number_of_t_step+1)

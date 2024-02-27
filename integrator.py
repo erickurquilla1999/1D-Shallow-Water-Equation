@@ -4,24 +4,6 @@ import os
 import evolve
 import inputs
 
-def euler_method(elmnt_numb,u1_,u2_,du1dt_, du2dt_,tstep,numb_t_step):
-    
-    # print(f'Step: {numb_t_step}  |  t = {tstep*numb_t_step}')
-
-    u1_nw=np.zeros((len(elmnt_numb),len(u1_[0])))
-    u2_nw=np.zeros((len(elmnt_numb),len(u2_[0])))
-
-    #looping over elements
-    for n in elmnt_numb:
-
-        for i in range(len(u1_[n])):
-            u1_nw[n][i]=u1_[n][i]+du1dt_[n][i]*tstep
-
-        for i in range(len(u2_[n])):
-            u2_nw[n][i]=u2_[n][i]+du2dt_[n][i]*tstep
-
-    return u1_nw, u2_nw
-
 def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
 
     print(f'Writing step {step} | t = {step*inputs.t_step} ... ')

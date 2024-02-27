@@ -46,19 +46,6 @@ def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_
 
     return N_matrix
 
-def compute_stiffness_vector(ele_n,_f1_,_f2_,stiff_matx):
-    
-    # computing stiffness vector
-    stiff_vec_1 = []
-    stiff_vec_1 = []
-
-    for n in ele_n:
-        stiff_vec_1.append(stiff_matx[n] @ _f1_[n])
-        stiff_vec_2.append(stiff_matx[n] @ _f2_[n])
-    
-    return stiff_vec_1, stiff_vec_2
-
-
 def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
 
     roe_fluxex_1 = []
@@ -94,7 +81,7 @@ def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
         if n == 0:
 
             numerical_flux_1.append( P_b @ roe_fluxex_1[0] - P_a @ ( u2[n] - u2[n] ) )
-            numerical_flux_2.append( @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
+            numerical_flux_2.append( P_b @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
 
         elif n == element_n[-1]:
 
