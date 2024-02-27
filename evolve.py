@@ -48,6 +48,34 @@ def compute_N_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_tim
 
 def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
 
+    roe_fluxex_1 = []
+    roe_fluxex_2 = []
+
+    # computing roe fluxex
+    for n in element_n[:-1]:
+
+        u1_average = 0.5*(u1[n][-1]+u1[n+1][0])
+        u2_average = 0.5*(u2[n][-1]+u2[n+1][0])
+
+        jacobian = [ [ 0 , 1 ] , [ inputs.g * u1_average - ( u2_average / u1_average )**2, 2 * u2_average / u1_average ] ]
+
+        eigenvalues_jacobian, eigenvectors_jacobian = np.linalg.eig(jacobian)
+
+        # Sort eigenvalues and corresponding eigenvectors
+        idx_sorted = np.argsort(eigenvalues_jacobian)
+        eigenvalues_jacobian = eigenvalues_jacobian[idx_sorted]
+        eigenvectors_jacobian = (eigenvectors_jacobian.T[:, idx_sorted]).T
+
+        # Construct the modified Roe matrix
+        abs_A = eigenvectors_jacobian @ np.diag(np.abs(eigenvalues_jacobian)) @ np.linalg.inv(eigenvectors_jacobian)
+
+        roe_fluxex_1.append( 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A[0][1] * ( u2[n+1] - u2[n] ) )
+        roe_fluxex_2.append( 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A[1][1] * ( u2[n+1] - u2[n] ) )
+
+    # creating matrix P_ij=phi_i*phi_j
+    P_a=np.outer(basis_values_at_nods[0][0],basis_values_at_nods[0][0])
+    P_b=np.outer(basis_values_at_nods[0][-1],basis_values_at_nods[0][-1])
+
     # print('Computing residual vector ... ')
 
     R_f1=[]
@@ -62,89 +90,18 @@ def compute_residual_vector(element_n,u1,u2,f1,f2,basis_values_at_nods,N_matx):
         # computing Roe flux
         if n == 0:
 
-            # computing roe flux at x=b, i.e. the end of the element
+            R2_f1_in_element_n = P_b @ roe_fluxex_1[0] - P_a @ ( u2[n] - u2[n] )
+            R2_f2_in_element_n = P_b @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 )
 
-            u1_av_b = 0.5*(u1[n][-1]+u1[n+1][0])
-            u2_av_b = 0.5*(u2[n][-1]+u2[n+1][0])
+        elif n == element_n[-1]:
 
-            jacobian_b = [ [ 0 , 1 ] , [ inputs.g * u1_av_b - ( u2_av_b / u1_av_b )**2, 2 * u2_av_b / u1_av_b ] ]
-
-            eigenvalues_jacobian_b, eigenvectors_jacobian_b = np.linalg.eig(jacobian_b)
-
-            abs_A_b = eigenvectors_jacobian_b @ np.diag(np.abs(eigenvalues_jacobian_b)) @ np.linalg.inv(eigenvectors_jacobian_b)
-
-            vec_1_b = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_b[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[0][1] * ( u2[n+1] - u2[n] )
-            vec_2_b = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_b[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[1][1] * ( u2[n+1] - u2[n] )
-
-            # creating matrix P_ij=phi_i*phi_j
-            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
-
-            # residual vector 2
-            R2_f1_in_element_n = np.dot(P_b,vec_1_b) - np.dot(P_a, u2[n] - u2[n] )
-            R2_f2_in_element_n = np.dot(P_b,vec_2_b) - np.dot(P_a, 0.5 * inputs.g * u1[n]**2 )
-
-        elif n == len(element_n) - 1:
-
-            # computing roe flux at x=a, i.e. the begining of the element
-
-            u1_average_a = 0.5*(u1[n-1][-1]+u1[n][0])
-            u2_average_a = 0.5*(u2[n-1][-1]+u2[n][0])
-            
-            jacobian_a = [ [ 0 , 1 ] , [ inputs.g * u1_average_a - ( u2_average_a / u1_average_a )**2 , 2 * u2_average_a / u1_average_a ] ]
-
-            eigenvalues_jacobian_a, eigenvectors_jacobian_a = np.linalg.eig(jacobian_a)
-
-            abs_A_a = eigenvectors_jacobian_a @ np.diag(np.abs(eigenvalues_jacobian_a)) @ np.linalg.inv(eigenvectors_jacobian_a)
-
-            vec_1_a = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_a[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[0][1] * ( u2[n] - u2[n-1] )
-            vec_2_a = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_a[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[1][1] * ( u2[n] - u2[n-1] )
-
-            # creating matrix P_ij=phi_i*phi_j
-            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
-
-            # residual vector 2
-            R2_f1_in_element_n = np.dot(P_b, u2[n] - u2[n] ) - np.dot(P_a,vec_1_a)
-            R2_f2_in_element_n = np.dot(P_b, 0.5 * inputs.g * u1[n]**2 ) - np.dot(P_a,vec_2_a)
+            R2_f1_in_element_n = P_b @ ( u2[n] - u2[n] ) - P_a @ roe_fluxex_1[-1]
+            R2_f2_in_element_n = P_b @ ( 0.5 * inputs.g * u1[n]**2 ) - P_a @ roe_fluxex_2[-1]
 
         else:
 
-            # computing roe flux at x=a, i.e. the begining of the element
-
-            u1_average_a = 0.5*(u1[n-1][-1]+u1[n][0])
-            u2_average_a = 0.5*(u2[n-1][-1]+u2[n][0])
-            
-            jacobian_a = [ [ 0 , 1 ] , [ inputs.g * u1_average_a - ( u2_average_a / u1_average_a )**2 , 2 * u2_average_a / u1_average_a ] ]
-
-            eigenvalues_jacobian_a, eigenvectors_jacobian_a = np.linalg.eig(jacobian_a)
-
-            abs_A_a = eigenvectors_jacobian_a @ np.diag(np.abs(eigenvalues_jacobian_a)) @ np.linalg.inv(eigenvectors_jacobian_a)
-
-            vec_1_a = 0.5 * ( f1[n-1] + f1[n] ) - 0.5 * abs_A_a[0][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[0][1] * ( u2[n] - u2[n-1] )
-            vec_2_a = 0.5 * ( f2[n-1] + f2[n] ) - 0.5 * abs_A_a[1][0] * ( u1[n] - u1[n-1] ) - 0.5 * abs_A_a[1][1] * ( u2[n] - u2[n-1] )
-
-            # computing roe flux at x=b, i.e. the end of the element
-
-            u1_av_b = 0.5*(u1[n][-1]+u1[n+1][0])
-            u2_av_b = 0.5*(u2[n][-1]+u2[n+1][0])
-
-            jacobian_b = [ [ 0 , 1 ] , [ inputs.g * u1_av_b - ( u2_av_b / u1_av_b )**2, 2 * u2_av_b / u1_av_b ] ]
-
-            eigenvalues_jacobian_b, eigenvectors_jacobian_b = np.linalg.eig(jacobian_b)
-
-            abs_A_b = eigenvectors_jacobian_b @ np.diag(np.abs(eigenvalues_jacobian_b)) @ np.linalg.inv(eigenvectors_jacobian_b)
-
-            vec_1_b = 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A_b[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[0][1] * ( u2[n+1] - u2[n] )
-            vec_2_b = 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A_b[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A_b[1][1] * ( u2[n+1] - u2[n] )
-
-            # creating matrix P_ij=phi_i*phi_j
-            P_a=np.outer(basis_values_at_nods[n][0],basis_values_at_nods[n][0])
-            P_b=np.outer(basis_values_at_nods[n][-1],basis_values_at_nods[n][-1])
-
-            # residual vector 2
-            R2_f1_in_element_n = np.dot(P_b,vec_1_b) - np.dot(P_a,vec_1_a)
-            R2_f2_in_element_n = np.dot(P_b,vec_2_b) - np.dot(P_a,vec_2_a)
+            R2_f1_in_element_n = P_b @ roe_fluxex_1[n] - P_a @ roe_fluxex_1[n-1]
+            R2_f2_in_element_n = P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1]
 
         # adding residual vector 1 and 2
         R_f1.append(R1_f1_in_element_n-R2_f1_in_element_n)

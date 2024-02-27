@@ -38,9 +38,10 @@ def plotting():
         fig, ax = plt.subplots()
         for i in range(len(x)):
             ax.plot(x[i],height[i])
-            ax.scatter(x[i],height[i])
+            # ax.scatter(x[i],height[i])
         ax.set_xlabel(r'$x$ (m)')
         ax.set_ylabel(r'$h$ (m)')
+        ax.set_ylim(0.5,1.5)
         fig.savefig('plots/h_'+file[0:-3]+'.pdf',bbox_inches='tight')
         plt.close(fig) 
 
