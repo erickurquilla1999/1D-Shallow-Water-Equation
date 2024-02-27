@@ -75,5 +75,12 @@ def M_matrix():
     print(f'Theory [0.1333333333,0.0666666666,-0.0333333333],[ - , 0.5333333333,0.0666666666],[ - , - , 0.13333333]')
     print(f'Unit matrix {M_inverse @ np.linalg.inv(M_inverse)}')
 
+def N_matrix():
+    
+    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[0,0.5,1]],30,[0],[1])
+    N_matr = evolve.compute_N_matrix([0], basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, gauss_weights,[1])
+    print(f'N matrix test')
+    print(f'Value in the code {N_matr}')
+    print(f'Theory [-0.5,-0.66666666,0.1666666],[0.666666666,0,-0.66666666],[ -1.66666 , 0.66666666 , 0.5]')
 
 

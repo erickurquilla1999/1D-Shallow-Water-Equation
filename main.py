@@ -45,8 +45,6 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # compute time derivatives of u_1 and u_2
         du1_dt, du2_dt = evolve.compute_time_derivates(element_number,M_inverse, R_f_1, R_f_2)
 
-        print(du1_dt[0])
-
         # evolving in time with euler method
         u_1_new, u_2_new = integrator.euler_method(element_number,u_1,u_2,du1_dt, du2_dt,inputs.t_step,number_of_t_step+1)
     else:
@@ -70,3 +68,4 @@ print(f'Done')
 test.basis_and_its_derivative()
 test.integration()
 test.M_matrix()
+test.N_matrix()
