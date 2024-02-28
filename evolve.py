@@ -25,26 +25,27 @@ def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_va
 
         # Append the inverse of M to the list
         M_inverse.append(M_inv_in_element_n)
-
+        
     return M_inverse
 
 def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
 
     print('Computing stiffness matrix ... ')
     
-    # N_ij = integral dphi_i_dx(x) phi_j(x) dx
-    N_matrix=[]
+    # S_ij = integral dphi_i_dx(x) phi_j(x) dx
+    stff_matrix=[]
 
     for n in elem_num:
+
         phi = np.array(basis_vals_at_gauss_quad_elements[n])
         dphi_dx = np.array(basis_vals_time_derivative_at_gauss_quad_elements[n])
         weights = gauss_weights_elmts[n]
         delta_x = elmnt_l[n]
 
         # Compute N for the current element
-        N_matrix.append(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi))
+        stff_matrix.append(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi))
 
-    return N_matrix
+    return stff_matrix
 
 def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
 
@@ -93,4 +94,4 @@ def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
             numerical_flux_1.append( P_b @ roe_fluxex_1[n] - P_a @ roe_fluxex_1[n-1] )
             numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1] )
 
-    return numerical_flux_1, numerical_flux_2
+    return np.array(numerical_flux_1), np.array(numerical_flux_2)

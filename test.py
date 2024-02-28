@@ -3,6 +3,48 @@ import basis
 import matplotlib.pyplot as plt
 import evolve 
 
+def test_lagrange_basis():
+    # Test parameters
+    num_nodes = 8
+    nodes = np.random.uniform(0, 10, size=num_nodes)  # Generate random Lagrange nodes between 0 and 10
+    i = 4  # Random index of the Lagrange node for which to compute the basis function
+    x = np.random.uniform(0, 10)  # Random point at which to evaluate the basis function
+
+    # Manually compute the expected value of the Lagrange basis function
+    expected_value = (x - nodes[0]) * (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / (
+    (nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+
+    # Call the lagrange_basis function
+    result = basis.lagrange_basis(nodes, i, x)
+
+    # Check if the result matches the expected value
+    if not np.isclose(result, expected_value):
+        print(f"Test failed: Expected {expected_value}, but got {result}")
+        print("Nodes:", nodes)
+        print("Index:", i)
+        print("Point:", x)
+
+def test_lagrange_basis_derivative():
+    # Test parameters
+    num_nodes = 8
+    nodes = np.random.uniform(0, 10, size=num_nodes)  # Generate random Lagrange nodes between 0 and 10
+    i = 4  # Random index of the Lagrange node for which to compute the basis function derivative
+    x = np.random.uniform(0, 10)  # Random point at which to evaluate the basis function derivative
+
+    # Manually compute the expected value of the Lagrange basis function derivative
+    expected_value = ((x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+
+    # Call the lagrange_basis derivative function
+    result = basis.lagrange_basis_derivative(nodes, i, x)
+
+    # Check if the result matches the expected value
+    if not np.isclose(result, expected_value):
+        print(f"Test failed: Expected {expected_value}, but got {result}")
+        print("Nodes:", nodes)
+        print("Index:", i)
+        print("Point:", x)
+
+
 def basis_and_its_derivative():
     
     domain = np.linspace(-1,1,100)

@@ -9,6 +9,14 @@ import integrator
 import plots
 import test
 
+# running some test
+test.test_lagrange_basis()
+test.test_lagrange_basis_derivative()
+# test.basis_and_its_derivative()
+# test.integration()
+# test.M_matrix()
+# test.N_matrix()
+
 # creating mesh
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
@@ -76,9 +84,3 @@ for number_of_t_step in np.arange(inputs.n_steps):
 plots.plotting()
 
 print(f'Done')
-
-# # running some test
-# test.basis_and_its_derivative()
-# test.integration()
-# test.M_matrix()
-# test.N_matrix()
