@@ -13,8 +13,7 @@ import test
 test.test_lagrange_basis()
 test.test_lagrange_basis_derivative()
 test.test_integration()
-test.test_mass_matrix()
-test.test_stiffness_matrix()
+test.test_mass_matrix_1()
 
 # creating mesh
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
@@ -29,17 +28,7 @@ h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_spa
 integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
 
 # compute mass matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
-mass_matrix_inverse = evolve.compute_mass_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
-
-# compute stiffness matrix S_ij = integral dphi_i_dx(x) phi_j(x) dx
-stiffness_matrix = evolve.compute_stiffness_matrix(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights,element_lengths)
-
-#mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
-# setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
-u_1 = h
-u_2 = h * u
-f_1 = h * u
-f_2 = h * u**2 + inputs.g * h**2 / 2
+mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
@@ -47,6 +36,9 @@ for number_of_t_step in np.arange(inputs.n_steps):
     # If true using euler method otherwise use RK4
     if inputs.evolution_method==0:
         
+        #################################################################################################
+        # solving for height h
+
         # computing stiffness vector 1        
         stiffness_vector_1 = evolve.compute_stiffness_vector_1(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights, element_lengths, h, u)
 
@@ -56,12 +48,12 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # compute residual vector 1
         residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
 
+        # compute time derivative of h
+        dh_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_1_inverse, residual_vector_1)]
 
+        #################################################################################################
 
-
-
-
-
+        mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
 
 
