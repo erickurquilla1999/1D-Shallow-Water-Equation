@@ -76,12 +76,23 @@ for number_of_t_step in np.arange(inputs.n_steps):
         du_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_2_inverse, residual_vector_2)]
 
         #################################################################################################
+        # testing if evolving u separately is the same as evolving d(hu)_dt
+
+        # residual vector for hu
+        residual_vector_hu = stiffness_vector_2 - numerical_flux_vector_2
+
+        dhu_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_1_inverse, residual_vector_hu)]
+
+        #################################################################################################
         # compute next time steps
         time_step = np.array(inputs.t_step)
 
         # evolving in time with euler method
+        hu = h * u + dhu_dt * time_step
         h = h + dh_dt * time_step
         u = u + du_dt * time_step
+
+        if np.allclose(hu, h * u): print(f"Evolving hu toguether and separatelly failed: Expected (h * u) {h * u}, but got (hu) {hu}")
 
         # count time
         time += time_step
