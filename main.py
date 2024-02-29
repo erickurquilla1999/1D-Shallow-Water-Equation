@@ -25,10 +25,13 @@ gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_qu
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
 
 # wrinting initial conditions file
-integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
+integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0,0)
 
 # compute mass matrix 1 : M_ij = integral phi_i(x) phi_j(x) dx and return the inverse
 mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
+
+# count time
+time = 0
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
@@ -74,16 +77,22 @@ for number_of_t_step in np.arange(inputs.n_steps):
 
         #################################################################################################
 
+        # compute next time steps
+        time_step = 0.1 * np.min([1/np.max(np.abs(dh_dt)) , 1/np.max(np.abs(du_dt)), inputs.t_step])    
+
         # evolving in time with euler method
-        h = h + dh_dt * np.array(inputs.t_step)
-        u = u + du_dt * np.array(inputs.t_step)
+        h = h + dh_dt * np.array(time_step)
+        u = u + du_dt * np.array(time_step)
+
+        # count time
+        time += time_step
 
     else:
         u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,np.array(inputs.t_step),number_of_t_step+1)
 
     # saving the data
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:
-        integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,number_of_t_step+1)
+        integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,number_of_t_step+1, time)
 
 # plotting data
 plots.plotting()
