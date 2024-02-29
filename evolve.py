@@ -52,25 +52,19 @@ def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
         abs_A = eigenvectors_jacobian @ np.diag(np.abs(eigenvalues_jacobian)) @ np.linalg.inv(eigenvectors_jacobian)
 
         # for the border between element n and n+1 compute the f1 on the left and the right
-        f1_left  = h_[n] * u_[n] 
-        f1_right = h_[n+1] * u_[n+1]
+        f1_left  = h_[n][-1] * u_[n][-1] 
+        f1_right = h_[n+1][0] * u_[n+1][0]
 
         # for the border between element n and n+1 compute the u1 on the left and the right
-        u1_left  = h_[n]
-        u1_right = h_[n+1]
+        u1_left  = h_[n][-1]
+        u1_right = h_[n+1][0]
 
         # for the border between element n and n+1 compute the u2 on the left and the right
-        u2_left  = h_[n] * u_[n] 
-        u2_right = h_[n+1] * u_[n+1]
+        u2_left  = h_[n][-1] * u_[n][-1] 
+        u2_right = h_[n+1][0] * u_[n+1][0]
 
         # compute roe flux
         roe_flux.append( 0.5 * ( f1_left + f1_right ) - 0.5 * abs_A[0][0] * ( u1_right - u1_left ) - 0.5 * abs_A[0][1] * ( u2_right - u2_left ) )
-
-    # creating matrix P_ij=phi_i*phi_j
-    # Pa is evaluated in x = a. This is the begining of the element
-    P_a=np.outer(basis_values_at_nods[0][0],basis_values_at_nods[0][0])
-    # Pb is evaluated in x = b. This is the end of the element
-    P_b=np.outer(basis_values_at_nods[0][-1],basis_values_at_nods[0][-1])
 
     # computing the difference between the numerical fluxe in limits of the element
     difference_numerical_flux = []
@@ -78,11 +72,12 @@ def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
     #looping over all element
     for n in element_n:
         # compute differences between flux: right numerical flux - left numerical flux
-        if n == 0:               difference_numerical_flux.append( P_b @ roe_flux[n]     - 0                   )
-        elif n == element_n[-1]: difference_numerical_flux.append( 0                     - P_a @ roe_flux[n-1] )
-        else:                    difference_numerical_flux.append( P_b @ roe_flux[n]     - P_a @ roe_flux[n-1] )
+        if n == 0:               difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * roe_flux[n] - basis_values_at_nods[n][:,0] * 0             )
+        elif n == element_n[-1]: difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * 0           - basis_values_at_nods[n][:,0] * roe_flux[n-1] )
+        else:                    difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * roe_flux[n] - basis_values_at_nods[n][:,0] * roe_flux[n-1] )
 
     return np.array(difference_numerical_flux)
+
 
 def compute_mass_matrix_2_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad, _h):
     
@@ -154,25 +149,19 @@ def compute_numerical_flux_vector_2(element_n, basis_values_at_nods, h_, u_):
         abs_A = eigenvectors_jacobian @ np.diag(np.abs(eigenvalues_jacobian)) @ np.linalg.inv(eigenvectors_jacobian)
 
         # for the border between element n and n+1 compute the f1 on the left and the right
-        f2_left  = h_[n] * u_[n]**2 + 0.5 * inputs.g * h_[n]**2
-        f2_right = h_[n+1] * u_[n+1]**2 + 0.5 * inputs.g * h_[n+1]**2
+        f2_left  = h_[n][-1] * u_[n][-1]**2 + 0.5 * inputs.g * h_[n][-1]**2
+        f2_right = h_[n+1][0] * u_[n+1][0]**2 + 0.5 * inputs.g * h_[n+1][0]**2
 
         # for the border between element n and n+1 compute the u1 on the left and the right
-        u1_left  = h_[n]
-        u1_right = h_[n+1]
+        u1_left  = h_[n][-1]
+        u1_right = h_[n+1][0]
 
         # for the border between element n and n+1 compute the u2 on the left and the right
-        u2_left  = h_[n] * u_[n] 
-        u2_right = h_[n+1] * u_[n+1]
+        u2_left  = h_[n][-1] * u_[n][-1] 
+        u2_right = h_[n+1][0] * u_[n+1][0]
 
         # compute roe flux
         roe_flux.append( 0.5 * ( f2_left + f2_right ) - 0.5 * abs_A[1][0] * ( u1_right - u1_left ) - 0.5 * abs_A[1][1] * ( u2_right - u2_left ) )
-
-    # creating matrix P_ij=phi_i*phi_j
-    # Pa is evaluated in x = a. This is the begining of the element
-    P_a=np.outer(basis_values_at_nods[0][0],basis_values_at_nods[0][0])
-    # Pb is evaluated in x = b. This is the end of the element
-    P_b=np.outer(basis_values_at_nods[0][-1],basis_values_at_nods[0][-1])
 
     # computing the difference between the numerical fluxe in limits of the element
     difference_numerical_flux = []
@@ -180,8 +169,8 @@ def compute_numerical_flux_vector_2(element_n, basis_values_at_nods, h_, u_):
     #looping over all element
     for n in element_n:
         # compute differences between flux: right numerical flux - left numerical flux
-        if n == 0:               difference_numerical_flux.append( P_b @ roe_flux[n]                   - P_a @ ( 0.5 * inputs.g * h_[n]**2 ) )
-        elif n == element_n[-1]: difference_numerical_flux.append( P_b @ ( 0.5 * inputs.g * h_[n]**2 ) - P_a @ roe_flux[n-1]                 )
-        else:                    difference_numerical_flux.append( P_b @ roe_flux[n]                   - P_a @ roe_flux[n-1]                 )
+        if n == 0:               difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * roe_flux[n]                       - basis_values_at_nods[n][:,0] * ( 0.5 * inputs.g * h_[n][0]**2 ) )
+        elif n == element_n[-1]: difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * ( 0.5 * inputs.g * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux[n-1]                    )
+        else:                    difference_numerical_flux.append( basis_values_at_nods[n][:,-1] * roe_flux[n]                       - basis_values_at_nods[n][:,0] * roe_flux[n-1]                    )
 
     return np.array(difference_numerical_flux)
