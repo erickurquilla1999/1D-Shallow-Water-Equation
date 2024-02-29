@@ -39,17 +39,20 @@ stiffness_matrix = evolve.compute_stiffness_matrix(element_number, basis_values_
 u_1 = h
 u_2 = h * u
 f_1 = h * u
-f_2 = h * u**2 + inputs.g * h**2 / 2
+f_2 = h * u**2 + 0.5 * inputs.g * h**2
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
 
     # If true using euler method otherwise use RK4
     if inputs.evolution_method==0:
-        
-        # computing stiffness vector
-        stiffness_vector_1 = np.array([stif_mtx @ f_1_ for stif_mtx, f_1_ in zip(stiffness_matrix, f_1)])
-        stiffness_vector_2 = np.array([stif_mtx @ f_2_ for stif_mtx, f_2_ in zip(stiffness_matrix, f_2)])
+
+        # computing stiffness vector | old function
+        # stiffness_vector_1 = np.array([stif_mtx @ f_1_ for stif_mtx, f_1_ in zip(stiffness_matrix, f_1)])
+        # stiffness_vector_2 = np.array([stif_mtx @ f_2_ for stif_mtx, f_2_ in zip(stiffness_matrix, f_2)])       
+
+        # computing stiffness vectors | new function
+        stiffness_vector_1, stiffness_vector_2 = evolve.compute_stiffness_vectors(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, h, u)
 
         # computing numerical flux
         numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
