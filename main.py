@@ -47,8 +47,14 @@ for number_of_t_step in np.arange(inputs.n_steps):
     # If true using euler method otherwise use RK4
     if inputs.evolution_method==0:
         
-        # computing stiffness vector
-        stiffness_vector_1 = np.array([stif_mtx @ f_1_ for stif_mtx, f_1_ in zip(stiffness_matrix, f_1)])
+        # computing stiffness vector 1        
+        stiffness_vector_1 = evolve.compute_stiffness_vector_1(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights,element_lengths,h,u)
+
+
+
+
+
+
         stiffness_vector_2 = np.array([stif_mtx @ f_2_ for stif_mtx, f_2_ in zip(stiffness_matrix, f_2)])
 
         # computing numerical flux

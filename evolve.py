@@ -95,3 +95,12 @@ def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
             numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1] )
 
     return np.array(numerical_flux_1), np.array(numerical_flux_2)
+
+def compute_stiffness_vector_1(ele_n, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_weights, ele_lengths, h_, u_):
+    
+    h_at_gau_quad = [ bas_at_gau_quad @ h__ for bas_at_gau_quad, h__ in zip(bas_vals_at_gau_quad,h_)]
+    u_at_gau_quad = [ bas_at_gau_quad @ u__ for bas_at_gau_quad, u__ in zip(bas_vals_at_gau_quad,u_)]
+
+    stiff_vec_1 = [0.5 * ele_lengths[n] * np.sum( gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for n in ele_n]
+
+    return stiff_vec_1
