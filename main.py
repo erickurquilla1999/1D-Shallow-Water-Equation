@@ -63,31 +63,16 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # compute stiffness vector 2 : integral ( d_dt phi_i(x) ) ( h u^2 + g h^2 / 2) dx and return the inverse
         stiffness_vector_2 = evolve.compute_stiffness_vector_2(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, h, u)
 
+        # computing numerical flux 2 : phi_i(b) f_rho(b) - phi_i(a) f_rho(a)
+        numerical_flux_vector_2 = evolve.compute_numerical_flux_vector_2(element_number, basis_values_at_nodes, h, u)
 
-
-
-
-
-
-
-
-
-
-        stiffness_vector_2 = np.array([stif_mtx @ f_2_ for stif_mtx, f_2_ in zip(stiffness_matrix, f_2)])
-
-        # computing numerical flux
-        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
-
-        # computing residual vector
-        residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2
+        # computing residual vector 2
+        residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2 - mass_vector_2_complement
 
         # compute time derivatives of u_1 and u_2
-        du1_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_inverse, residual_vector_1)]
-        du2_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
+        du_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_2_inverse, residual_vector_2)]
 
-        # compute time derivatives of h and u
-        dh_dt = du1_dt
-        du_dt = np.where( h == 0 , 0 , ( du2_dt - u * dh_dt ) / h )
+        #################################################################################################
 
         # evolving in time with euler method
         h = h + dh_dt * np.array(inputs.t_step)
@@ -99,12 +84,6 @@ for number_of_t_step in np.arange(inputs.n_steps):
     # saving the data
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:
         integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,number_of_t_step+1)
-
-    # saving new quantities to evolve next time step
-    u_1 = h
-    u_2 = h * u
-    f_1 = h * u
-    f_2 = h * u**2 + inputs.g * h**2 / 2
 
 # plotting data
 plots.plotting()
