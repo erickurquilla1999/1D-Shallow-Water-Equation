@@ -125,7 +125,7 @@ def compute_stiffness_vector_2(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadr
     _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
 
     # compute stiffness vector 2
-    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * inputs.g * np.array(_h_at_gau_quad)**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
+    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * inputs.g * np.array(_h_at_gau_quad[n])**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
     
     return stiff_vec_2
 
