@@ -48,7 +48,19 @@ for number_of_t_step in np.arange(inputs.n_steps):
     if inputs.evolution_method==0:
         
         # computing stiffness vector 1        
-        stiffness_vector_1 = evolve.compute_stiffness_vector_1(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights,element_lengths,h,u)
+        stiffness_vector_1 = evolve.compute_stiffness_vector_1(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights, element_lengths, h, u)
+
+        # computing numerical flux 1
+        numerical_flux_vector_1 = evolve.compute_numerical_flux_vector_1(element_number, basis_values_at_nodes, h, u)
+
+        # compute residual vector 1
+        residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
+
+
+
+
+
+
 
 
 
@@ -61,7 +73,6 @@ for number_of_t_step in np.arange(inputs.n_steps):
         numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
 
         # computing residual vector
-        residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
         residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2
 
         # compute time derivatives of u_1 and u_2

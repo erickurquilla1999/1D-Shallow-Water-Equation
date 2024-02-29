@@ -47,60 +47,69 @@ def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_
 
     return stff_matrix
 
-def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
+def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
 
-    roe_fluxex_1 = []
-    roe_fluxex_2 = []
+    # computing roe flux
+    roe_flux = []
 
-    # computing roe fluxex
+    # looping over each element (except the final element) to compute the roe flux at the right
     for n in element_n[:-1]:
 
-        u1_average = 0.5*(u1[n][-1]+u1[n+1][0])
-        u2_average = 0.5*(u2[n][-1]+u2[n+1][0])
+        # computing average value in the right border of element n and n+1
+        h_average = 0.5*(h_[n][-1]+h_[n+1][0])
+        u_average = 0.5*(u_[n][-1]+u_[n+1][0])
 
-        jacobian = [ [ 0 , 1 ] , [ inputs.g * u1_average - ( u2_average / u1_average )**2, 2 * u2_average / u1_average ] ]
+        # compute the jacobian evaluated in the border between elements n and n+1
+        jacobian = [ [ 0 , 1 ] , [ inputs.g * h_average - u_average**2, 2 * u_average ] ]
 
+        # compute eigenvalues and eigenvector of the jacobian
         eigenvalues_jacobian, eigenvectors_jacobian = np.linalg.eig(jacobian)
 
-        # Construct the modified Roe matrix
+        # biulds abs_A matrix
         abs_A = eigenvectors_jacobian @ np.diag(np.abs(eigenvalues_jacobian)) @ np.linalg.inv(eigenvectors_jacobian)
 
-        roe_fluxex_1.append( 0.5 * ( f1[n] + f1[n+1] ) - 0.5 * abs_A[0][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A[0][1] * ( u2[n+1] - u2[n] ) )
-        roe_fluxex_2.append( 0.5 * ( f2[n] + f2[n+1] ) - 0.5 * abs_A[1][0] * ( u1[n+1] - u1[n] ) - 0.5 * abs_A[1][1] * ( u2[n+1] - u2[n] ) )
+        # for the border between element n and n+1 compute the f1 on the left and the right
+        f1_left  = h_[n] * u_[n] 
+        f1_right = h_[n+1] * u_[n+1]
+
+        # for the border between element n and n+1 compute the u1 on the left and the right
+        u1_left  = h_[n]
+        u1_right = h_[n+1]
+
+        # for the border between element n and n+1 compute the u2 on the left and the right
+        u2_left  = h_[n] * u_[n] 
+        u2_right = h_[n+1] * u_[n+1]
+
+        # compute roe flux
+        roe_flux.append( 0.5 * ( f1_left + f1_right ) - 0.5 * abs_A[0][0] * ( u1_right - u1_left ) - 0.5 * abs_A[0][1] * ( u2_right - u2_left ) )
 
     # creating matrix P_ij=phi_i*phi_j
+    # Pa is evaluated in x = a. This is the begining of the element
     P_a=np.outer(basis_values_at_nods[0][0],basis_values_at_nods[0][0])
+    # Pb is evaluated in x = b. This is the end of the element
     P_b=np.outer(basis_values_at_nods[0][-1],basis_values_at_nods[0][-1])
 
     # computing the difference between the numerical fluxe in limits of the element
+    difference_numerical_flux = []
 
-    numerical_flux_1=[]
-    numerical_flux_2=[]
-
+    #looping over all element
     for n in element_n:
-        
-        if n == 0:
+        # compute differences between flux: right numerical flux - left numerical flux
+        if n == 0:               difference_numerical_flux.append( P_b @ roe_flux[n]     - 0                   )
+        elif n == element_n[-1]: difference_numerical_flux.append( 0                     - P_a @ roe_flux[n-1] )
+        else:                    difference_numerical_flux.append( P_b @ roe_flux[n]     - P_a @ roe_flux[n-1] )
 
-            numerical_flux_1.append( P_b @ roe_fluxex_1[n] - 0 )
-            numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
-
-        elif n == element_n[-1]:
-
-            numerical_flux_1.append( 0 - P_a @ roe_fluxex_1[-1] )
-            numerical_flux_2.append( P_b @ ( 0.5 * inputs.g * u1[n]**2 ) - P_a @ roe_fluxex_2[-1] )
-
-        else:
-
-            numerical_flux_1.append( P_b @ roe_fluxex_1[n] - P_a @ roe_fluxex_1[n-1] )
-            numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ roe_fluxex_2[n-1] )
-
-    return np.array(numerical_flux_1), np.array(numerical_flux_2)
+    return np.array(difference_numerical_flux)
 
 def compute_stiffness_vector_1(ele_n, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_weights, ele_lengths, h_, u_):
     
+    # compute values of height h at gauss quadrature
     h_at_gau_quad = [ bas_at_gau_quad @ h__ for bas_at_gau_quad, h__ in zip(bas_vals_at_gau_quad,h_)]
+    
+    # compute values of velocity u at gauss quadrature
     u_at_gau_quad = [ bas_at_gau_quad @ u__ for bas_at_gau_quad, u__ in zip(bas_vals_at_gau_quad,u_)]
 
-    stiff_vec_1 = [0.5 * ele_lengths[n] * np.sum( gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for n in ele_n]
+    # integrate over each element : int ( d_dx phi_i ) * u * h dx
+    stiff_vec_1 = [[0.5 * ele_lengths[n] * np.sum( np.array(bas_vals_x_der_at_gau_quad[n])[:,m] * gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for m in range(len(bas_vals_x_der_at_gau_quad[n][0]))] for n in ele_n]
 
     return stiff_vec_1
