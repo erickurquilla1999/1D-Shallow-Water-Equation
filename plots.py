@@ -41,7 +41,7 @@ def plotting():
         fig, ax = plt.subplots()
         for i in range(len(x)):
             ax.plot(x[i],height[i])
-            # ax.scatter(x[i],height[i])
+            if inputs.p_basis_order==0: ax.scatter(x[i],height[i])
         ax.set_xlabel(r'$x$ (m)')
         ax.set_ylabel(r'$h$ (m)')
         ax.set_ylim(0.5,1.5)
@@ -52,7 +52,7 @@ def plotting():
         fig, ax = plt.subplots()
         for i in range(len(x)):
             ax.plot(x[i],velocity[i])
-            # ax.scatter(x[i],velocity[i])
+            if inputs.p_basis_order==0: ax.scatter(x[i],velocity[i])
         ax.set_xlabel(r'$x$ (m)')
         ax.set_ylabel(r'$u$ (m/s)')
         ax.text(0.1, 0, "time = "+str(step*inputs.t_step)+" s", fontsize=12)

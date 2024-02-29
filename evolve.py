@@ -78,7 +78,6 @@ def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
 
     return np.array(difference_numerical_flux)
 
-
 def compute_mass_matrix_2_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad, _h):
     
     # number of basis or nodes in each element
