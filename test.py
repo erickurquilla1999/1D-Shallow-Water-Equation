@@ -65,7 +65,6 @@ def test_integration():
     if not np.isclose(result, expected_value):
         print(f"test_integration() failed: Expected {expected_value}, but got {result}")
     
-
 def test_mass_matrix_1():
 
     num_nodes = 8
@@ -78,7 +77,7 @@ def test_mass_matrix_1():
     nodes = np.concatenate(([a], random_numbers, [b]))
 
     gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
-    M_inverse = evolve.compute_mass_matrix_1_inverse([0], [b-a], gauss_weights, basis_values_at_gauss_quad)
+    M_inverse = evolve.compute_mass_matrix_1_inverse([0], [b-a], gauss_weights, np.array(basis_values_at_gauss_quad))
                                                 # (element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
     result = np.linalg.inv(M_inverse[0])[4,4]
 

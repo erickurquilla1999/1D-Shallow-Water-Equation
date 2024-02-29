@@ -27,8 +27,8 @@ h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_spa
 # wrinting initial conditions file
 integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
 
-# compute mass matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
-mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
+# compute mass matrix 1 : M_ij = integral phi_i(x) phi_j(x) dx and return the inverse
+mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad))
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
@@ -39,10 +39,10 @@ for number_of_t_step in np.arange(inputs.n_steps):
         #################################################################################################
         # solving for height h
 
-        # computing stiffness vector 1        
+        # computing stiffness vector 1 : integral ( d_dx phi_i(x) ) h u dx and return the inverse
         stiffness_vector_1 = evolve.compute_stiffness_vector_1(element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights, element_lengths, h, u)
 
-        # computing numerical flux 1
+        # computing numerical flux 1 : phi_i(b) f_rho(b) - phi_i(a) f_rho(a)
         numerical_flux_vector_1 = evolve.compute_numerical_flux_vector_1(element_number, basis_values_at_nodes, h, u)
 
         # compute residual vector 1
@@ -52,9 +52,10 @@ for number_of_t_step in np.arange(inputs.n_steps):
         dh_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_1_inverse, residual_vector_1)]
 
         #################################################################################################
+        # solving for velocity u
 
-        mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
-
+        # compute mass matrix 2 : M_ij = integral phi_i(x) phi_j(x) h dx and return the inverse
+        mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad), h)
 
 
 

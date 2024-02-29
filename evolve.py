@@ -3,30 +3,29 @@ import inputs
 
 def compute_mass_matrix_1_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
-    # print('Computing mass inverse matrix ... ')
+    # number of basis or nodes in each element
+    number_of_basis = len(basis_values_at_gauss_quad[0][0])
+
+    # compute mass matrix 1
+    M1 = [ [ [ 0.5 * element_lgth[n] * np.sum( basis_values_at_gauss_quad[n][:,i] * gauss_weights[n] * basis_values_at_gauss_quad[n][:,j] ) for j in range(number_of_basis) ] for i in range(number_of_basis) ] for n in elmnt_numb]
+
+    # compute inverse of mass matrix 2
+    M1_inverse = [ np.linalg.inv(M1[n]) for n in elmnt_numb]
     
-    # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
-    M = []
-    M_inverse = []
+    return M1_inverse
 
-    #Lopp over all element
-    for n in elmnt_numb:
-        phi = np.array(basis_values_at_gauss_quad[n])
-        weights = gauss_weights[n]
-        delta_x = element_lgth[n]
-        
-        # Compute M for the current element
-        M_in_element_n = 0.5 * delta_x * np.dot(phi.T * weights, phi)
-        # Append M to the list
-        M.append(M_in_element_n)
+def compute_stiffness_vector_1(ele_n, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_weights, ele_lengths, h_, u_):
+    
+    # compute values of height h at gauss quadrature
+    h_at_gau_quad = [ bas_at_gau_quad @ h__ for bas_at_gau_quad, h__ in zip(bas_vals_at_gau_quad,h_)]
+    
+    # compute values of velocity u at gauss quadrature
+    u_at_gau_quad = [ bas_at_gau_quad @ u__ for bas_at_gau_quad, u__ in zip(bas_vals_at_gau_quad,u_)]
 
-        # Compute the inverse of M for the current element
-        M_inv_in_element_n = np.linalg.inv(M_in_element_n)
+    # integrate over each element : int ( d_dx phi_i ) * u * h dx
+    stiff_vec_1 = [[0.5 * ele_lengths[n] * np.sum( np.array(bas_vals_x_der_at_gau_quad[n])[:,m] * gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for m in range(len(bas_vals_x_der_at_gau_quad[n][0]))] for n in ele_n]
 
-        # Append the inverse of M to the list
-        M_inverse.append(M_inv_in_element_n)
- 
-    return M_inverse
+    return stiff_vec_1
 
 def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
 
@@ -82,15 +81,18 @@ def compute_numerical_flux_vector_1(element_n, basis_values_at_nods, h_, u_):
 
     return np.array(difference_numerical_flux)
 
-def compute_stiffness_vector_1(ele_n, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_weights, ele_lengths, h_, u_):
+def compute_mass_matrix_2_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad, _h):
     
-    # compute values of height h at gauss quadrature
-    h_at_gau_quad = [ bas_at_gau_quad @ h__ for bas_at_gau_quad, h__ in zip(bas_vals_at_gau_quad,h_)]
+    # number of basis or nodes in each element
+    number_of_basis = len(basis_values_at_gauss_quad[0][0])
+
+    # interpolate h from nodes to quadrature points
+    _h_at_gau_quad = [ bas_at_gau_quad @ __h for bas_at_gau_quad, __h in zip(basis_values_at_gauss_quad, _h)]
+
+    # compute mass matrix 2
+    M2 = [ [ [ 0.5 * element_lgth[n] * np.sum( basis_values_at_gauss_quad[n][:,i] * _h_at_gau_quad[n] * gauss_weights[n] * basis_values_at_gauss_quad[n][:,j] ) for j in range(number_of_basis) ] for i in range(number_of_basis) ] for n in elmnt_numb]
+
+    # compute inverse of mass matrix 2
+    M2_inverse = [ np.linalg.inv(M2[n]) for n in elmnt_numb]
     
-    # compute values of velocity u at gauss quadrature
-    u_at_gau_quad = [ bas_at_gau_quad @ u__ for bas_at_gau_quad, u__ in zip(bas_vals_at_gau_quad,u_)]
-
-    # integrate over each element : int ( d_dx phi_i ) * u * h dx
-    stiff_vec_1 = [[0.5 * ele_lengths[n] * np.sum( np.array(bas_vals_x_der_at_gau_quad[n])[:,m] * gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for m in range(len(bas_vals_x_der_at_gau_quad[n][0]))] for n in ele_n]
-
-    return stiff_vec_1
+    return M2_inverse
