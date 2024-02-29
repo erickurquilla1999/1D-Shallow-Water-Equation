@@ -60,8 +60,8 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # compute mass vector 2 complement: integral phi_i(x) ( d_dt h ) u dx and return the inverse
         mass_vector_2_complement = evolve.compute_mass_vector_2_complement(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, dh_dt, u)
 
-
-
+        # compute stiffness vector 2 : integral ( d_dt phi_i(x) ) ( h u^2 + g h^2 / 2) dx and return the inverse
+        stiffness_vector_2 = evolve.compute_stiffness_vector_2(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, h, u)
 
 
 

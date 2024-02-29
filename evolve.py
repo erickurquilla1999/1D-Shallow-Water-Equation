@@ -112,3 +112,21 @@ def compute_mass_vector_2_complement(e_numb,e_lgth, g_weights, bas_vals_at_gauss
     M2_vec_comp = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_at_gauss_quadrature[n][:,i] * _dh_dt_at_gau_quad[n] * _u_at_gau_quad[n] ) for i in range(number_of_basis) ] for n in e_numb]
     
     return M2_vec_comp
+
+
+
+def compute_stiffness_vector_2(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadrature, bas_vals_x_der_at_gauss_quadrature, _h, _u):
+    
+    # number of basis or nodes in each element
+    number_of_basis = len(bas_vals_at_gauss_quadrature[0][0])
+
+    # interpolate h from nodes to quadrature points
+    _h_at_gau_quad = [ bas_at_gau_quad @ __h for bas_at_gau_quad, __h in zip(bas_vals_at_gauss_quadrature, _h)]
+
+    # interpolate u from nodes to quadrature points
+    _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
+
+    # compute stiffness vector 2
+    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * inputs.g * np.array(_h_at_gau_quad)**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
+    
+    return stiff_vec_2
