@@ -22,8 +22,11 @@ def compute_stiffness_vector_1(ele_n, bas_vals_at_gau_quad, bas_vals_x_der_at_ga
     # compute values of velocity u at gauss quadrature
     u_at_gau_quad = [ bas_at_gau_quad @ u__ for bas_at_gau_quad, u__ in zip(bas_vals_at_gau_quad,u_)]
 
+    # number of basis or nodes in each element
+    number_of_basis = len(bas_vals_x_der_at_gau_quad[0][0])
+
     # integrate over each element : int ( d_dx phi_i ) * u * h dx
-    stiff_vec_1 = [[0.5 * ele_lengths[n] * np.sum( np.array(bas_vals_x_der_at_gau_quad[n])[:,m] * gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for m in range(len(bas_vals_x_der_at_gau_quad[n][0]))] for n in ele_n]
+    stiff_vec_1 = [[0.5 * ele_lengths[n] * np.sum( bas_vals_x_der_at_gau_quad[n][:,m] * gau_weights[n] * h_at_gau_quad[n] * u_at_gau_quad[n] ) for m in range(number_of_basis)] for n in ele_n]
 
     return stiff_vec_1
 

@@ -76,13 +76,12 @@ for number_of_t_step in np.arange(inputs.n_steps):
         du_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_2_inverse, residual_vector_2)]
 
         #################################################################################################
-
         # compute next time steps
-        time_step = 0.1 * np.min([1/np.max(np.abs(dh_dt)) , 1/np.max(np.abs(du_dt)), inputs.t_step])
+        time_step = np.array(inputs.t_step)
 
         # evolving in time with euler method
-        h = h + dh_dt * np.array(time_step)
-        u = u + du_dt * np.array(time_step)
+        h = h + dh_dt * time_step
+        u = u + du_dt * time_step
 
         # count time
         time += time_step
