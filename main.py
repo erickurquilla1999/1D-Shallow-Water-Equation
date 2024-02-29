@@ -28,7 +28,7 @@ h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_spa
 integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
 
 # compute mass matrix 1 : M_ij = integral phi_i(x) phi_j(x) dx and return the inverse
-mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad))
+mass_matrix_1_inverse = evolve.compute_mass_matrix_1_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
@@ -55,11 +55,10 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # solving for velocity u
 
         # compute mass matrix 2 : M_ij = integral phi_i(x) phi_j(x) h dx and return the inverse
-        mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad), h)
+        mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, h)
 
         # compute mass vector 2 complement: integral phi_i(x) ( d_dt h ) u dx and return the inverse
-        mass_vector_2_complement = evolve.compute_mass_vector_2_complement(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad), dh_dt, u)
-
+        mass_vector_2_complement = evolve.compute_mass_vector_2_complement(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, dh_dt, u)
 
 
 
