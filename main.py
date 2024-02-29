@@ -72,13 +72,13 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # computing residual vector 2
         residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2 - mass_vector_2_complement
 
-        # compute time derivatives of u_1 and u_2
+        # compute time derivatives of u
         du_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_2_inverse, residual_vector_2)]
 
         #################################################################################################
 
         # compute next time steps
-        time_step = 0.1 * np.min([1/np.max(np.abs(dh_dt)) , 1/np.max(np.abs(du_dt)), inputs.t_step])    
+        time_step = 0.1 * np.min([1/np.max(np.abs(dh_dt)) , 1/np.max(np.abs(du_dt)), inputs.t_step])
 
         # evolving in time with euler method
         h = h + dh_dt * np.array(time_step)
