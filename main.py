@@ -57,6 +57,20 @@ for number_of_t_step in np.arange(inputs.n_steps):
         # compute mass matrix 2 : M_ij = integral phi_i(x) phi_j(x) h dx and return the inverse
         mass_matrix_2_inverse = evolve.compute_mass_matrix_2_inverse(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad), h)
 
+        # compute mass vector 2 complement: integral phi_i(x) ( d_dt h ) u dx and return the inverse
+        mass_vector_2_complement = evolve.compute_mass_vector_2_complement(element_number, element_lengths, gauss_weights, np.array(basis_values_at_gauss_quad), dh_dt, u)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -96,3 +96,19 @@ def compute_mass_matrix_2_inverse(elmnt_numb,element_lgth, gauss_weights, basis_
     M2_inverse = [ np.linalg.inv(M2[n]) for n in elmnt_numb]
     
     return M2_inverse
+
+def compute_mass_vector_2_complement(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadrature, _dh_dt, _u):
+    
+    # number of basis or nodes in each element
+    number_of_basis = len(bas_vals_at_gauss_quadrature[0][0])
+
+    # interpolate u from nodes to quadrature points
+    _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
+
+    # interpolate dh_dt from nodes to quadrature points
+    _dh_dt_at_gau_quad = [ bas_at_gau_quad @ __dh_dt for bas_at_gau_quad, __dh_dt in zip(bas_vals_at_gauss_quadrature, _dh_dt)]
+
+    # compute mass vector 2 complement
+    M2_vec_comp = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_at_gauss_quadrature[n][:,i] * _dh_dt_at_gau_quad[n] * _u_at_gau_quad[n] ) for i in range(number_of_basis) ] for n in e_numb]
+    
+    return M2_vec_comp
