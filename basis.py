@@ -44,7 +44,7 @@ def lagrange_basis_derivative(nodes, i, x):
 
 def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points,l_elem_coordinates, r_elem_coordinates):
 
-    print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
+    # print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
 
     # saving basis function evaluated at nodes in physical space
     # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
@@ -55,13 +55,13 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points,l_e
             for x in nodes
         ]
         for nodes in nodes_phys_space
-    ]    
+    ]
 
     # generate Gauss cuadrature and weights in reference space
     gauss_coords_ref_space, gauss_quad_weights = np.polynomial.legendre.leggauss(n_gauss_quad_points)
-    
+
     # saving Gauss cuadrature in physical space
-    gauss_coords_phys_space = [[0.5*(l_elem_coordinates[n]+r_elem_coordinates[n])-0.5*(l_elem_coordinates[n]-r_elem_coordinates[n])*e for e in gauss_coords_ref_space] for n in elements]
+    gauss_coords_phys_space = [ 0.5 * ( r_elem_coordinates[n] - l_elem_coordinates[n] ) * gauss_coords_ref_space + 0.5 * ( r_elem_coordinates[n] + l_elem_coordinates[n]) for n in elements]
 
     # saving gauss coordinates and weigths all of them are the same for each element
     gauss_coords_ref_space = [gauss_coords_ref_space for _ in elements]
@@ -79,9 +79,9 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points,l_e
     ]    
 
     # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
-    # time_derivative_of_basis_func_at_gauss_quad_in_phys_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
+    # x_derivative_of_basis_func_at_gauss_quad_in_phys_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
     #                                                               [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
-    time_derivative_of_basis_func_at_gauss_quad_in_phys_space = [
+    x_derivative_of_basis_func_at_gauss_quad_in_phys_space = [
         [
             [lagrange_basis_derivative(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
@@ -90,8 +90,8 @@ def generate_reference_space(elements, nodes_phys_space, n_gauss_quad_points,l_e
     ]
 
     # saving this information in generatedfiles/reference_space.h5
-    utilities.save_data_to_hdf5([elements,nodes_phys_space,basis_func_values_at_nodes_in_phys_space,gauss_coords_ref_space,gauss_coords_phys_space,gauss_quad_weights,basis_func_values_at_gauss_quad_in_phys_space,time_derivative_of_basis_func_at_gauss_quad_in_phys_space],
-                                ['elements','nodes_phys_space','basis_func_values_at_nodes_in_phys_space','gauss_coords_ref_space','gauss_coords_phys_space','gauss_quad_weights','basis_func_values_at_gauss_quad_in_phys_space','time_derivative_of_basis_func_at_gauss_quad_in_phys_space'],
+    utilities.save_data_to_hdf5([elements,nodes_phys_space,basis_func_values_at_nodes_in_phys_space,gauss_coords_ref_space,gauss_coords_phys_space,gauss_quad_weights,basis_func_values_at_gauss_quad_in_phys_space,x_derivative_of_basis_func_at_gauss_quad_in_phys_space],
+                                ['elements','nodes_phys_space','basis_func_values_at_nodes_in_phys_space','gauss_coords_ref_space','gauss_coords_phys_space','gauss_quad_weights','basis_func_values_at_gauss_quad_in_phys_space','x_derivative_of_basis_func_at_gauss_quad_in_phys_space'],
                                 'generatedfiles/reference_space.h5')
 
-    return gauss_quad_weights, basis_func_values_at_gauss_quad_in_phys_space, time_derivative_of_basis_func_at_gauss_quad_in_phys_space, basis_func_values_at_nodes_in_phys_space
+    return gauss_quad_weights, basis_func_values_at_gauss_quad_in_phys_space, x_derivative_of_basis_func_at_gauss_quad_in_phys_space, basis_func_values_at_nodes_in_phys_space

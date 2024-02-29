@@ -3,7 +3,7 @@ import inputs
 
 def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
 
-    print('Computing mass inverse matrix ... ')
+    # print('Computing mass inverse matrix ... ')
     
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
@@ -25,12 +25,12 @@ def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_va
 
         # Append the inverse of M to the list
         M_inverse.append(M_inv_in_element_n)
-        
+ 
     return M_inverse
 
-def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_time_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
+def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_x_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
 
-    print('Computing stiffness matrix ... ')
+    # print('Computing stiffness matrix ... ')
     
     # S_ij = integral dphi_i_dx(x) phi_j(x) dx
     stff_matrix=[]
@@ -38,7 +38,7 @@ def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_
     for n in elem_num:
 
         phi = np.array(basis_vals_at_gauss_quad_elements[n])
-        dphi_dx = np.array(basis_vals_time_derivative_at_gauss_quad_elements[n])
+        dphi_dx = np.array(basis_vals_x_derivative_at_gauss_quad_elements[n])
         weights = gauss_weights_elmts[n]
         delta_x = elmnt_l[n]
 
@@ -81,12 +81,12 @@ def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
         
         if n == 0:
 
-            numerical_flux_1.append( P_b @ roe_fluxex_1[0] - P_a @ ( u2[n] - u2[n] ) )
-            numerical_flux_2.append( P_b @ roe_fluxex_2[0] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
+            numerical_flux_1.append( P_b @ roe_fluxex_1[n] - 0 )
+            numerical_flux_2.append( P_b @ roe_fluxex_2[n] - P_a @ (0.5 * inputs.g * u1[n]**2 ) )
 
         elif n == element_n[-1]:
 
-            numerical_flux_1.append( P_b @ ( u2[n] - u2[n] ) - P_a @ roe_fluxex_1[-1] )
+            numerical_flux_1.append( 0 - P_a @ roe_fluxex_1[-1] )
             numerical_flux_2.append( P_b @ ( 0.5 * inputs.g * u1[n]**2 ) - P_a @ roe_fluxex_2[-1] )
 
         else:
