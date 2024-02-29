@@ -1,7 +1,8 @@
 import numpy as np
 import basis
 import matplotlib.pyplot as plt
-import evolve 
+import evolve
+import random
 
 def test_lagrange_basis():
     # Test parameters
@@ -19,10 +20,7 @@ def test_lagrange_basis():
 
     # Check if the result matches the expected value
     if not np.isclose(result, expected_value):
-        print(f"Test failed: Expected {expected_value}, but got {result}")
-        print("Nodes:", nodes)
-        print("Index:", i)
-        print("Point:", x)
+        print(f"test_lagrange_basis() failed: Expected {expected_value}, but got {result}")
 
 def test_lagrange_basis_derivative():
     # Test parameters
@@ -39,90 +37,92 @@ def test_lagrange_basis_derivative():
 
     # Check if the result matches the expected value
     if not np.isclose(result, expected_value):
-        print(f"Test failed: Expected {expected_value}, but got {result}")
-        print("Nodes:", nodes)
-        print("Index:", i)
-        print("Point:", x)
+        print(f"test_lagrange_basis_derivative() failed: Expected {expected_value}, but got {result}")
 
+def test_integration():
 
-def basis_and_its_derivative():
+    n_gauss_quad_pnts = 10
+    a = 0
+    b = np.pi/2
+
+    num_nodes = random.randint(2,4)   
+
+    random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
+    nodes = np.concatenate(([a], random_numbers, [b]))
     
-    domain = np.linspace(-1,1,100)
-    nodes = [-1,0,1]
+    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
+                                                                                                                                            #    (element_nuber, nodes, gauss_quad_points, node_left, node_right)
+    funtion_at_nodes = np.cos(nodes)
+    funtion_at_quadrature_points = basis_values_at_gauss_quad[0] @ funtion_at_nodes
+    result = 0.5 * ( np.pi/2 - 0 ) * np.sum(gauss_weights[0]*funtion_at_quadrature_points)
 
-    lagrange_basis=[]
-    for i in range(len(nodes)):
-        lagrange_basis_i=[]
-        for x in domain:
-            lagrange_basis_i.append(basis.lagrange_basis(nodes,i,x))
-        lagrange_basis.append(lagrange_basis_i)
+    # computing expected value
+    nodes, weights = np.polynomial.legendre.leggauss(n_gauss_quad_pnts)
+    scaled_nodes = 0.5 * (b - a) * nodes + 0.5 * (b + a)
+    scaled_weights = 0.5 * (b - a) * weights
+    expected_value = np.sum(scaled_weights * np.cos(scaled_nodes))
 
-    fig, ax = plt.subplots()
-    ax.plot(domain,lagrange_basis[0],c='b')
-    ax.plot(domain,lagrange_basis[1],c='r')
-    ax.plot(domain,lagrange_basis[2],c='g')
-    ax.plot(domain,0.5*(domain**2-domain),c='black',linestyle='dotted')
-    ax.plot(domain,1-domain**2,c='black',linestyle='dotted')
-    ax.plot(domain,0.5*(domain**2+domain),c='black',linestyle='dotted')
-    ax.set_xlabel(r'$x$')
-    ax.set_ylabel(r'$\phi$')
-    fig.savefig('plots/lagrange_basis.pdf',bbox_inches='tight')
-    plt.close(fig) 
-
-    lagrange_basis_der=[]
-    for i in range(len(nodes)):
-        lagrange_basis_der_i=[]
-        for x in domain:
-            lagrange_basis_der_i.append(basis.lagrange_basis_derivative(nodes,i,x))
-        lagrange_basis_der.append(lagrange_basis_der_i)
-
-    fig, ax = plt.subplots()
-    ax.plot(domain,lagrange_basis_der[0],c='b')
-    ax.plot(domain,lagrange_basis_der[1],c='r')
-    ax.plot(domain,lagrange_basis_der[2],c='g')
-    ax.plot(domain,0.5*(2*domain-np.array(1)),c='black',linestyle='dotted')
-    ax.plot(domain,-2*domain,c='black',linestyle='dotted')
-    ax.plot(domain,0.5*(2*domain+np.array(1)),c='black',linestyle='dotted')
-    ax.set_xlabel(r'$x$')
-    ax.set_ylabel(r'$d\phi/dx$')
-    fig.savefig('plots/lagrange_basis_derivative.pdf',bbox_inches='tight')
-    plt.close(fig) 
-
-def integration():
-
-    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[-1,0,1]],10,[-1],[1])
-
-    x= np.array([-1,0,1])
-    funtion_at_nodes = (x**2)*np.array(3)
-    f_xn = basis_values_at_gauss_quad[0] @ funtion_at_nodes
-    integral = 0.5 * ( 1 - ( -1 ) ) * np.sum(gauss_weights[0]*f_xn)
-    print(f'\nintegrating 3*x**2 from -1 to 1')
-    print(f'gauss integration: {integral}')
-    print(f'real integration: {2}')
+    if not np.isclose(result, expected_value):
+        print(f"test_integration() failed: Expected {expected_value}, but got {result}")
     
-    x= np.array([-1,0,1])
-    funtion_at_nodes = x
-    f_xn = basis_values_at_gauss_quad[0] @ funtion_at_nodes
-    integral = 0.5 * ( 1 - ( -1 ) ) * np.sum(gauss_weights[0]*f_xn*np.array(basis_values_time_derivative_at_gauss_quad[0])[:,0])
-    print(f'\nintegrating x * dphi_1/dx from -1 to 1')
-    print(f'gauss integration: {integral}')
-    print(f'real integration: {0.66666666666666666}')
 
-def M_matrix():
+def test_mass_matrix():
+
+    num_nodes = 8
+    n_gauss_quad_pnts = 10
+    a = 0
+    b = 1
+    i = 4
+
+    random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
+    nodes = np.concatenate(([a], random_numbers, [b]))
+
+    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
+    M_inverse = evolve.compute_mass_matrix_inverse([0], [b-a], gauss_weights, basis_values_at_gauss_quad)
+                                                # (element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
+    result = np.linalg.inv(M_inverse[0])[4,4]
+
+    # computing expected value
+    nodes_gauss, weights = np.polynomial.legendre.leggauss(n_gauss_quad_pnts)
+    scaled_nodes = 0.5 * (b - a) * nodes_gauss + 0.5 * (b + a)
+    scaled_weights = 0.5 * (b - a) * weights
+    x = scaled_nodes
+    lagrange_base_4_in_quad_points = (x - nodes[0]) * (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+
+    expected_value = np.sum(scaled_weights * lagrange_base_4_in_quad_points*lagrange_base_4_in_quad_points)
     
-    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[0,0.5,1]],30,[0],[1])
-    M_inverse = evolve.compute_mass_matrix_inverse([0], [1], gauss_weights, basis_values_at_gauss_quad)
-    print(f'\nMass matrix test')
-    print(f'Value in the code {np.linalg.inv(M_inverse)}')
-    print(f'Theory {[[0.1333333333,0.0666666666,-0.0333333333],[ 0.0666666666 , 0.5333333333,0.0666666666],[ 0.0666666666,-0.0333333333, 0.13333333]]}')
-    print(f'Unit matrix {M_inverse @ np.linalg.inv(M_inverse)}')
+    if not np.isclose(result, expected_value):
+        print(f"test_mass_matrix() failed: Expected {expected_value}, but got {result}")
 
-def N_matrix():
+def test_stiffness_matrix():
+
+    num_nodes = 8
+    n_gauss_quad_pnts = 10
+    a = 0
+    b = 1
+    i = 0
+
+    random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
+    nodes = np.concatenate(([a], random_numbers, [b]))
+
+    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
+    stiff_matr = evolve.compute_stiffness_matrix([0], basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights,[b-a])
     
-    gauss_weights, basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[[0,0.5,1]],30,[0],[1])
-    N_matr = evolve.compute_stiffness_matrix([0], basis_values_at_gauss_quad, basis_values_time_derivative_at_gauss_quad, gauss_weights,[1])
-    print(f'\nstiffness matrix test')
-    print(f'Value in the code {N_matr}')
-    print(f'Theory {[[-0.5,-0.66666666,0.1666666],[0.666666666,0,-0.66666666],[ -1.66666 , 0.66666666 , 0.5]]}')
+    result = stiff_matr[0][4,0] 
+    
+    # computing expected value
+    nodes_gauss, weights = np.polynomial.legendre.leggauss(n_gauss_quad_pnts)
+    scaled_nodes = 0.5 * (b - a) * nodes_gauss + 0.5 * (b + a)
+    scaled_weights = 0.5 * (b - a) * weights
+    x = scaled_nodes
 
+    i = 0
+    lagrange_base_0_in_quad_points = (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[4]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / ((nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[4]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+    i = 4
+    x_derivative_lagrange_base_4_in_quad_points = ((x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+    # lagrange_base_4_in_quad_points = (x - nodes[0]) * (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
+    
+    expected_value = np.sum(scaled_weights * x_derivative_lagrange_base_4_in_quad_points * lagrange_base_0_in_quad_points)
 
+    if not np.isclose(result, expected_value):
+        print(f"test_stiffness_matrix() failed: Expected {expected_value}, but got {result}")
