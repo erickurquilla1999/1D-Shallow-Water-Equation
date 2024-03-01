@@ -30,13 +30,6 @@ integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False
 # compute mass matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
 mass_matrix_inverse = evolve.compute_mass_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
-#mapping shallow-water equations to eq par_t u_i + par_x f_i = 0. u=(h,hu) and f=(hu,hu^2+gh^2/2). u_1=h and u_2=h*u
-# setting the initil conditions to u and f components, u_i and f_i means u and f in component i 
-u_1 = h
-u_2 = h * u
-f_1 = h * u
-f_2 = h * u**2 + 0.5 * inputs.g * h**2
-
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
 
@@ -47,19 +40,18 @@ for number_of_t_step in np.arange(inputs.n_steps):
         stiffness_vector_1, stiffness_vector_2 = evolve.compute_stiffness_vectors(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, h, u)
 
         # computing numerical flux
-        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vector(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes)
+        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vectors(element_number, basis_values_at_nodes, h, u)
 
         # computing residual vector
         residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
         residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2
 
         # compute time derivatives of u_1 and u_2
-        du1_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_inverse, residual_vector_1)]
-        du2_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
+        dh_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_inverse, residual_vector_1)]
+        dhu_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
 
-        # compute time derivatives of h and u
-        dh_dt = du1_dt
-        du_dt = np.where( h == 0 , 0 , ( du2_dt - u * dh_dt ) / h )
+        # compute time derivatives of u
+        du_dt = np.where( h == 0 , 0 , ( dhu_dt - u * dh_dt ) / h )
 
         # evolving in time with euler method
         h = h + dh_dt * np.array(inputs.t_step)
@@ -71,12 +63,6 @@ for number_of_t_step in np.arange(inputs.n_steps):
     # saving the data
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:
         integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,number_of_t_step+1)
-
-    # saving new quantities to evolve next time step
-    u_1 = h
-    u_2 = h * u
-    f_1 = h * u
-    f_2 = h * u**2 + inputs.g * h**2 / 2
 
 # plotting data
 plots.plotting()
