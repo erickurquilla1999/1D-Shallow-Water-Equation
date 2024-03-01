@@ -24,8 +24,11 @@ gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_qu
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
 
+# compute entropy : integral 0.5 * ( g * h**2 + h * u ) dx
+entropy = evolve.compute_entropy(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
+
 # wrinting initial conditions file
-integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,0)
+integrator.write_data_file(element_number,nodes_coordinates_phys_space,entropy,h,u,False,0)
 
 # compute mass matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
 mass_matrix_inverse = evolve.compute_mass_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
@@ -46,7 +49,12 @@ for number_of_t_step in np.arange(inputs.n_steps):
 
     # saving the data
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:
-        integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False,number_of_t_step+1)
+
+        # compute entropy : integral 0.5 * ( g * h**2 + h * u ) dx
+        entropy = evolve.compute_entropy(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
+
+        # writing data
+        integrator.write_data_file(element_number,nodes_coordinates_phys_space,entropy,h,u,False,number_of_t_step+1)
 
 # plotting data
 plots.plotting()
