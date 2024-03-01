@@ -30,35 +30,19 @@ integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False
 # compute mass matrix M_ij = integral phi_i(x) phi_j(x) dx and return the inverse matrix of M_ij
 mass_matrix_inverse = evolve.compute_mass_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
+# time step
+time_step = np.array(inputs.t_step) 
+
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):
 
-    # If true using euler method otherwise use RK4
+    # If true using euler method
     if inputs.evolution_method==0:
+        h, u = integrator.euler_method( h, u, time_step, element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights, element_lengths, basis_values_at_nodes, mass_matrix_inverse)
 
-        # computing stiffness vectors
-        stiffness_vector_1, stiffness_vector_2 = evolve.compute_stiffness_vectors(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, h, u)
-
-        # computing numerical flux
-        numerical_flux_vector_1, numerical_flux_vector_2 = evolve.compute_numerical_flux_vectors(element_number, basis_values_at_nodes, h, u)
-
-        # computing residual vector
-        residual_vector_1 = stiffness_vector_1 - numerical_flux_vector_1
-        residual_vector_2 = stiffness_vector_2 - numerical_flux_vector_2
-
-        # compute time derivatives of u_1 and u_2
-        dh_dt = [mass_mat_inv @ res_vec_1 for mass_mat_inv, res_vec_1 in zip(mass_matrix_inverse, residual_vector_1)]
-        dhu_dt = [mass_mat_inv @ res_vec_2 for mass_mat_inv, res_vec_2 in zip(mass_matrix_inverse, residual_vector_2)]
-
-        # compute time derivatives of u
-        du_dt = np.where( h == 0 , 0 , ( dhu_dt - u * dh_dt ) / h )
-
-        # evolving in time with euler method
-        h = h + dh_dt * np.array(inputs.t_step)
-        u = u + du_dt * np.array(inputs.t_step)
-
-    else:
-        u_1_new, u_2_new = integrator.rk4_method(element_number,u_1,u_2,f_1,f_2,basis_values_at_nodes,N,M_inverse,np.array(inputs.t_step),number_of_t_step+1)
+    # If true using RK4 method
+    if inputs.evolution_method==1:
+        h, u = integrator.rk4_method( h, u, time_step, element_number, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights, element_lengths, basis_values_at_nodes, mass_matrix_inverse)
 
     # saving the data
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:

@@ -27,49 +27,78 @@ def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
                                 ['element_number', 'nodes_coordinates', 'height', 'velocity','time'],
                                 'output/step_'+str(step)+'.h5')
 
-def rk4_method(elmnt_numb, u1,u2,f1,f2, basis_vals_at_nods, Nmatrix, Minv, timestep,numb_time_step):
+def rk4_method( _h_, _u_, timestep, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_):
+
+    def compute_time_derivatives(h__, u__, ele_nub, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, ele_len, bas_vals_at_nod, mass_matrix_inverse__):
+        
+        # computing stiffness vectors
+        stiffness_vector_1_, stiffness_vector_2_ = evolve.compute_stiffness_vectors(ele_nub, ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
+
+        # computing numerical flux
+        numerical_flux_vector_1_, numerical_flux_vector_2_ = evolve.compute_numerical_flux_vectors(ele_nub, bas_vals_at_nod, h__, u__)
+
+        # computing residual vector
+        residual_vector_1_ = stiffness_vector_1_ - numerical_flux_vector_1_
+        residual_vector_2_ = stiffness_vector_2_ - numerical_flux_vector_2_
+
+        # compute time derivatives of u_1 and u_2
+        dh_dt_ = [mass_mat_inv__ @ res_vec_1_ for mass_mat_inv__, res_vec_1_ in zip(mass_matrix_inverse__, residual_vector_1_)]
+        dhu_dt_ = [mass_mat_inv__ @ res_vec_2_ for mass_mat_inv__, res_vec_2_ in zip(mass_matrix_inverse__, residual_vector_2_)]
+
+        # compute time derivatives of u
+        du_dt_ = np.where( h__ == 0 , 0 , ( dhu_dt_ - u__ * dh_dt_ ) / h__ )
+
+        return dh_dt_, du_dt_
 
     # computing k1
-    R_f_1, R_f_2 = evolve.compute_residual_vector(elmnt_numb,u1,u2,f1,f2,basis_vals_at_nods,Nmatrix)
-    du1dt_, du2dt_ = evolve.compute_time_derivates(elmnt_numb,Minv, R_f_1, R_f_2)
-    k1_u1_ = du1dt_ * timestep
-    k1_u2_ = du2dt_ * timestep
-    
-    # computing k2
-    u1_n = u1 + k1_u1_/np.array(2)
-    u2_n = u2 + k1_u2_/np.array(2)
-    f1_n = u2_n
-    f2_n = np.where(u1_n == 0, 0, u2_n**2/u1_n + inputs.g * u1_n**2/np.array(2))
+    dh_dt, du_dt = compute_time_derivatives(_h_, _u_, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_)
+    k1_h = dh_dt * timestep
+    k1_u = du_dt * timestep
 
-    R_f_1, R_f_2 = evolve.compute_residual_vector(elmnt_numb,u1_n,u2_n,f1_n,f2_n,basis_vals_at_nods,Nmatrix)
-    du1dt_, du2dt_ = evolve.compute_time_derivates(elmnt_numb,Minv, R_f_1, R_f_2)
-    k2_u1_ = du1dt_ * timestep
-    k2_u2_ = du2dt_ * timestep
+    # computing k2
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k1_h * 0.5, _u_ + k1_u * 0.5, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_)
+    k2_h = dh_dt * timestep
+    k2_u = du_dt * timestep
 
     # computing k3
-    u1_n = u1 + k2_u1_/np.array(2)
-    u2_n = u2 + k2_u2_/np.array(2)
-    f1_n = u2_n
-    f2_n = np.where(u1_n == 0, 0, u2_n**2/u1_n + inputs.g * u1_n**2/np.array(2))
-
-    R_f_1, R_f_2 = evolve.compute_residual_vector(elmnt_numb,u1_n,u2_n,f1_n,f2_n,basis_vals_at_nods,Nmatrix)
-    du1dt_, du2dt_ = evolve.compute_time_derivates(elmnt_numb,Minv, R_f_1, R_f_2)
-    k3_u1_ = du1dt_ * timestep
-    k3_u2_ = du2dt_ * timestep
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k2_h * 0.5, _u_ + k2_u * 0.5, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_)
+    k3_h = dh_dt * timestep
+    k3_u = du_dt * timestep
 
     # computing k4
-    u1_n = u1 + k3_u1_
-    u2_n = u2 + k3_u2_
-    f1_n = u2_n
-    f2_n = np.where(u1_n == 0, 0, u2_n**2/u1_n + inputs.g * u1_n**2/np.array(2))
-
-    R_f_1, R_f_2 = evolve.compute_residual_vector(elmnt_numb,u1_n,u2_n,f1_n,f2_n,basis_vals_at_nods,Nmatrix)
-    du1dt_, du2dt_ = evolve.compute_time_derivates(elmnt_numb,Minv, R_f_1, R_f_2)
-    k4_u1_ = du1dt_ * timestep
-    k4_u2_ = du2dt_ * timestep
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k3_h, _u_ + k3_u, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_)
+    k4_h = dh_dt * timestep
+    k4_u = du_dt * timestep
 
     # computing values of u_1 and u_2 in next time step
-    u1_new = u1 + np.array(1/6)*(k1_u1_+np.array(2)*k2_u1_+np.array(2)*k2_u1_+k4_u1_) 
-    u2_new = u2 + np.array(1/6)*(k1_u2_+np.array(2)*k2_u2_+np.array(2)*k2_u2_+k4_u2_) 
+    h_new = _h_ + (k1_h + 2 * k2_h + 2 * k3_h + k4_h) / 6
+    u_new = _u_ + (k1_u + 2 * k2_u + 2 * k2_u + k4_u) / 6
 
-    return u1_new, u2_new
+    return h_new, u_new
+
+def euler_method( h__, u__, timestep, ele_nub, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, ele_len, bas_vals_at_nod, mass_matrix_inverse__):
+
+    # computing stiffness vectors
+    stiffness_vector_1_, stiffness_vector_2_ = evolve.compute_stiffness_vectors(ele_nub, ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
+
+    # computing numerical flux
+    numerical_flux_vector_1_, numerical_flux_vector_2_ = evolve.compute_numerical_flux_vectors(ele_nub, bas_vals_at_nod, h__, u__)
+
+    # computing residual vector
+    residual_vector_1_ = stiffness_vector_1_ - numerical_flux_vector_1_
+    residual_vector_2_ = stiffness_vector_2_ - numerical_flux_vector_2_
+
+    # compute time derivatives of u_1 and u_2
+    dh_dt = [mass_mat_inv__ @ res_vec_1_ for mass_mat_inv__, res_vec_1_ in zip(mass_matrix_inverse__, residual_vector_1_)]
+    dhu_dt = [mass_mat_inv__ @ res_vec_2_ for mass_mat_inv__, res_vec_2_ in zip(mass_matrix_inverse__, residual_vector_2_)]
+
+    # compute time derivatives of u
+    du_dt = np.where( h__ == 0 , 0 , ( dhu_dt - u__ * dh_dt ) / h__ )
+
+    # evolving in time with euler method
+    h_new = h__ + dh_dt * timestep
+    u_new = u__ + du_dt * timestep
+
+    return h_new, u_new
+
+
