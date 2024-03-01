@@ -2,8 +2,6 @@ import numpy as np
 import inputs
 
 def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
-
-    # print('Computing mass inverse matrix ... ')
     
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
@@ -105,3 +103,24 @@ def compute_stiffness_vectors(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadra
     stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * inputs.g * np.array(_h_at_gau_quad[n])**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
     
     return stiff_vec_1, stiff_vec_2
+
+def compute_time_derivatives(h__, u__, ele_nub, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, ele_len, bas_vals_at_nod, mass_matrix_inverse__):
+    
+    # computing stiffness vectors
+    stiffness_vector_1_, stiffness_vector_2_ = compute_stiffness_vectors(ele_nub, ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
+
+    # computing numerical flux
+    numerical_flux_vector_1_, numerical_flux_vector_2_ = compute_numerical_flux_vectors(ele_nub, bas_vals_at_nod, h__, u__)
+
+    # computing residual vector
+    residual_vector_1_ = stiffness_vector_1_ - numerical_flux_vector_1_
+    residual_vector_2_ = stiffness_vector_2_ - numerical_flux_vector_2_
+
+    # compute time derivatives of h and hu
+    dh_dt_ = [mass_mat_inv__ @ res_vec_1_ for mass_mat_inv__, res_vec_1_ in zip(mass_matrix_inverse__, residual_vector_1_)]
+    dhu_dt_ = [mass_mat_inv__ @ res_vec_2_ for mass_mat_inv__, res_vec_2_ in zip(mass_matrix_inverse__, residual_vector_2_)]
+
+    # compute time derivatives of u
+    du_dt_ = np.where( h__ == 0 , 0 , ( dhu_dt_ - u__ * dh_dt_ ) / h__ )
+
+    return dh_dt_, du_dt_
