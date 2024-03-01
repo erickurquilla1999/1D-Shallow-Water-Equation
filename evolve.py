@@ -28,25 +28,6 @@ def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_va
  
     return M_inverse
 
-def compute_stiffness_matrix(elem_num, basis_vals_at_gauss_quad_elements, basis_vals_x_derivative_at_gauss_quad_elements,gauss_weights_elmts,elmnt_l):
-
-    # print('Computing stiffness matrix ... ')
-    
-    # S_ij = integral dphi_i_dx(x) phi_j(x) dx
-    stff_matrix=[]
-
-    for n in elem_num:
-
-        phi = np.array(basis_vals_at_gauss_quad_elements[n])
-        dphi_dx = np.array(basis_vals_x_derivative_at_gauss_quad_elements[n])
-        weights = gauss_weights_elmts[n]
-        delta_x = elmnt_l[n]
-
-        # Compute N for the current element
-        stff_matrix.append(0.5 * delta_x * np.dot(dphi_dx.T * weights, phi))
-
-    return stff_matrix
-
 def compute_numerical_flux_vector(element_n,u1,u2,f1,f2,basis_values_at_nods):
 
     # computing roe flux

@@ -93,36 +93,3 @@ def test_mass_matrix():
     
     if not np.isclose(result, expected_value):
         print(f"test_mass_matrix() failed: Expected {expected_value}, but got {result}")
-
-def test_stiffness_matrix():
-
-    num_nodes = 8
-    n_gauss_quad_pnts = 10
-    a = 0
-    b = 1
-    i = 0
-
-    random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
-    nodes = np.concatenate(([a], random_numbers, [b]))
-
-    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
-    stiff_matr = evolve.compute_stiffness_matrix([0], basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, gauss_weights,[b-a])
-    
-    result = stiff_matr[0][4,0] 
-    
-    # computing expected value
-    nodes_gauss, weights = np.polynomial.legendre.leggauss(n_gauss_quad_pnts)
-    scaled_nodes = 0.5 * (b - a) * nodes_gauss + 0.5 * (b + a)
-    scaled_weights = 0.5 * (b - a) * weights
-    x = scaled_nodes
-
-    i = 0
-    lagrange_base_0_in_quad_points = (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[4]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / ((nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[4]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
-    i = 4
-    x_derivative_lagrange_base_4_in_quad_points = ((x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[5])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[6])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[7])+(x-nodes[0])*(x-nodes[1])*(x-nodes[2])*(x-nodes[3])*(x-nodes[5])*(x-nodes[6])) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
-    # lagrange_base_4_in_quad_points = (x - nodes[0]) * (x - nodes[1]) * (x - nodes[2]) * (x - nodes[3]) * (x - nodes[5]) * (x - nodes[6]) * (x - nodes[7]) / ((nodes[i] - nodes[0]) * (nodes[i] - nodes[1]) * (nodes[i] - nodes[2]) * (nodes[i] - nodes[3]) * (nodes[i] - nodes[5]) * (nodes[i] - nodes[6]) * (nodes[i] - nodes[7]))
-    
-    expected_value = np.sum(scaled_weights * x_derivative_lagrange_base_4_in_quad_points * lagrange_base_0_in_quad_points)
-
-    if not np.isclose(result, expected_value):
-        print(f"test_stiffness_matrix() failed: Expected {expected_value}, but got {result}")
