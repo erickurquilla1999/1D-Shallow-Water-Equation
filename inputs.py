@@ -10,7 +10,7 @@ p_basis_order = 2 # lagrange basis order
 
 # simulation time
 n_steps = 4000 # number of time steps
-t_step = 0.001 # (s) simulation time limit
+t_limit = 4 # (s) simulation time limit
 
 # Gauss cuadrature
 n_gauss_poins = 20 

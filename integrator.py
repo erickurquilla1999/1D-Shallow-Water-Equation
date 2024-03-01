@@ -6,7 +6,7 @@ import inputs
 
 def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
 
-    print(f'Writing step {step} | t = {step*inputs.t_step}')
+    print(f'Writing step {step} | t = {step*inputs.t_limit/inputs.n_steps}')
 
     if vel_equal_hu:
         vel=np.where(hgt == 0, 0, np.array(vel)/np.array(hgt))
@@ -23,7 +23,7 @@ def write_data_file(element_n, nodes_coords,hgt,vel,vel_equal_hu,step):
             # If the directory does not exist, create it
             os.makedirs(directory)
 
-    utilities.save_data_to_hdf5([element_n, nodes_coords, hgt, vel,step*inputs.t_step],
+    utilities.save_data_to_hdf5([element_n, nodes_coords, hgt, vel,step*inputs.t_limit/inputs.n_steps],
                                 ['element_number', 'nodes_coordinates', 'height', 'velocity','time'],
                                 'output/step_'+str(step)+'.h5')
 

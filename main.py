@@ -31,7 +31,7 @@ integrator.write_data_file(element_number,nodes_coordinates_phys_space,h,u,False
 mass_matrix_inverse = evolve.compute_mass_matrix_inverse(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
 
 # time step
-time_step = np.array(inputs.t_step) 
+time_step = np.array(inputs.t_limit/inputs.n_steps) 
 
 # evolving in time the PDE
 for number_of_t_step in np.arange(inputs.n_steps):

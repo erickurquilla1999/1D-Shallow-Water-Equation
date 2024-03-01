@@ -47,7 +47,7 @@ def plotting():
         ax.set_xlabel(r'$x$ (m)')
         ax.set_ylabel(r'$h$ (m)')
         ax.set_ylim(0.5,1.5)
-        ax.text(0.1, 1, "time = "+str(step*inputs.t_step)+" s", fontsize=12)
+        ax.text(0.1, 1, "time = "+str(step*inputs.t_limit/inputs.n_steps)+" s", fontsize=12)
         fig.savefig('plots/h_'+file[0:-3]+'.pdf',bbox_inches='tight')
         plt.close(fig) 
 
@@ -58,6 +58,6 @@ def plotting():
             if inputs.p_basis_order==0: ax.scatter(x[i],velocity[i])
         ax.set_xlabel(r'$x$ (m)')
         ax.set_ylabel(r'$u$ (m/s)')
-        ax.text(0.1, 0, "time = "+str(step*inputs.t_step)+" s", fontsize=12)
+        ax.text(0.1, 0, "time = "+str(step*inputs.t_limit/inputs.n_steps)+" s", fontsize=12)
         fig.savefig('plots/u_'+file[0:-3]+'.pdf',bbox_inches='tight')
         plt.close(fig) 
