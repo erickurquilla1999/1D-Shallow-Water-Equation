@@ -64,7 +64,6 @@ def test_integration():
 
     if not np.isclose(result, expected_value):
         print(f"test_integration() failed: Expected {expected_value}, but got {result}")
-    
 
 def test_mass_matrix():
 
