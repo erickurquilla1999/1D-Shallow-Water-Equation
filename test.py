@@ -45,7 +45,7 @@ def test_integration():
     a = 0
     b = np.pi/2
 
-    num_nodes = random.randint(2,4)   
+    num_nodes = random.randint(8,10)   
 
     random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
     nodes = np.concatenate(([a], random_numbers, [b]))

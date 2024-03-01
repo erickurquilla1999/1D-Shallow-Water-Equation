@@ -5,7 +5,7 @@ import inputs
 
 def plotting():
 
-    print('Plotting data ... ')
+    print('Plotting data')
         
     # Check if the directory exists
     directory = 'plots'
