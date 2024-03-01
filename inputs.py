@@ -22,4 +22,4 @@ g = 9.8 # m/s^2
 plot_every_steps = 400
 
 # PDE evolution method # 0: euler, 1: rk4
-evolution_method = 0
+evolution_method = 1
