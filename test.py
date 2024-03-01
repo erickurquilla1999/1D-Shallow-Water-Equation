@@ -1,6 +1,5 @@
 import numpy as np
 import basis
-import matplotlib.pyplot as plt
 import evolve
 import random
 
