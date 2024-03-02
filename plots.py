@@ -28,6 +28,9 @@ def plotting():
     # Sort the list based on the numbers after the underscore
     files = sorted(files, key=sort_key)
 
+    entropy = []
+    time = []
+
     for file in files:
     
         print(f'Plotting {file}')
@@ -38,6 +41,8 @@ def plotting():
         x = utilities.load_data_from_hdf5('nodes_coordinates','output/'+file)
         velocity = utilities.load_data_from_hdf5('velocity','output/'+file)
         height = utilities.load_data_from_hdf5('height','output/'+file)
+        entropy.append(utilities.load_data_from_hdf5('entropy','output/'+file))
+        time.append(step*inputs.t_limit/inputs.n_steps)
 
         # plotting h vs x for all data
         fig, ax = plt.subplots()
@@ -61,3 +66,11 @@ def plotting():
         ax.text(0.1, 0, "time = "+str(step*inputs.t_limit/inputs.n_steps)+" s", fontsize=12)
         fig.savefig('plots/u_'+file[0:-3]+'.pdf',bbox_inches='tight')
         plt.close(fig) 
+
+    # plotting entropy vs time
+    fig, ax = plt.subplots()
+    ax.plot(time,entropy)
+    ax.set_xlabel(r'$t$ ($s$)')
+    ax.set_ylabel(r'$J$ ($m^4/s^2$)')
+    fig.savefig('plots/entropy.pdf',bbox_inches='tight')
+    plt.close(fig) 
