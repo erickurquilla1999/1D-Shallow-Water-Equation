@@ -40,6 +40,12 @@ def load_data_from_hdf5(dataset_name, filename):
             raise ValueError(f"Dataset '{dataset_name}' not found in the HDF5 file '{filename}'.")
 
         # Load the dataset
-        data = hf[dataset_name][:]
-    
-    return data
+        data = hf[dataset_name][()]
+        
+        # Check the shape of the dataset
+        if data.shape == (1,):
+            # If it's a single value, return the scalar value
+            return data.item()
+        else:
+            # Otherwise, return the entire dataset
+            return data
