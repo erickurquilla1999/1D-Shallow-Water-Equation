@@ -125,7 +125,10 @@ def compute_time_derivatives(h__, u__, ele_nub, bas_vals_at_gau_quad, bas_vals_x
 
     return dh_dt_, du_dt_
 
-def compute_entropy(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadrature, _h, _u):
+def compute_entropy(e_lgth, g_weights, bas_vals_at_gauss_quadrature, _h, _u):
+
+    # elements number
+    e_numb = np.arange(len(e_lgth))
 
     # interpolate h from nodes to quadrature points
     _h_at_gau_quad = [ bas_at_gau_quad @ __h for bas_at_gau_quad, __h in zip(bas_vals_at_gauss_quadrature, _h)]

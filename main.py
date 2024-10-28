@@ -19,13 +19,13 @@ test.test_mass_matrix()
 element_number, left_node_coordinates, right_node_coordinates, nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 # generating reference space information
-gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(nodes_coordinates_phys_space,inputs.n_gauss_poins,left_node_coordinates, right_node_coordinates)
+gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(nodes_coordinates_phys_space,inputs.n_gauss_poins)
 
 # generating initial conditions
 h, u = initial_conditions.generate_initial_conditions(nodes_coordinates_phys_space)
 
 # compute entropy : integral 0.5 * ( g * h**2 + h * u ) dx
-entropy = evolve.compute_entropy(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
+entropy = evolve.compute_entropy(element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
 
 # wrinting initial conditions file
 integrator.write_data_file(element_number,nodes_coordinates_phys_space,entropy,h,u,False,0)
@@ -51,7 +51,7 @@ for number_of_t_step in np.arange(inputs.n_steps):
     if (number_of_t_step+1) % inputs.plot_every_steps == 0:
 
         # compute entropy : integral 0.5 * ( g * h**2 + h * u ) dx
-        entropy = evolve.compute_entropy(element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
+        entropy = evolve.compute_entropy(element_lengths, gauss_weights, basis_values_at_gauss_quad, h, u)
 
         # writing data
         integrator.write_data_file(element_number,nodes_coordinates_phys_space,entropy,h,u,False,number_of_t_step+1)
