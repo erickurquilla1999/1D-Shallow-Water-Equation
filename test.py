@@ -49,7 +49,7 @@ def test_integration():
     random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
     nodes = np.concatenate(([a], random_numbers, [b]))
     
-    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
+    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
                                                                                                                                             #    (element_nuber, nodes, gauss_quad_points, node_left, node_right)
     funtion_at_nodes = np.cos(nodes)
     funtion_at_quadrature_points = basis_values_at_gauss_quad[0] @ funtion_at_nodes
@@ -75,7 +75,7 @@ def test_mass_matrix():
     random_numbers = a + np.sort(np.random.rand(num_nodes-2)) * (b - a)
     nodes = np.concatenate(([a], random_numbers, [b]))
 
-    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([0],[nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
+    gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space([nodes],n_gauss_quad_pnts,[nodes[0]],[nodes[-1]])
     M_inverse = evolve.compute_mass_matrix_inverse([0], [b-a], gauss_weights, basis_values_at_gauss_quad)
                                                 # (element_number, element_lengths, gauss_weights, basis_values_at_gauss_quad)
     result = np.linalg.inv(M_inverse[0])[4,4]
