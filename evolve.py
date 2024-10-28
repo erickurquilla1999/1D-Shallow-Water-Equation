@@ -1,14 +1,14 @@
 import numpy as np
 import inputs
 
-def compute_mass_matrix_inverse(elmnt_numb,element_lgth, gauss_weights, basis_values_at_gauss_quad):
+def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gauss_quad):
     
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
     M_inverse = []
 
     #Lopp over all element
-    for n in elmnt_numb:
+    for n in np.arange(inputs.N_elements):
         phi = np.array(basis_values_at_gauss_quad[n])
         weights = gauss_weights[n]
         delta_x = element_lgth[n]
