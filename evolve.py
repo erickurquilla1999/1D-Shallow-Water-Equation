@@ -26,14 +26,14 @@ def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gau
  
     return M_inverse
 
-def compute_numerical_flux_vectors(element_n, basis_values_at_nods, h_, u_):
+def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
 
     # computing roe flux
     roe_flux_1 = []
     roe_flux_2 = []
 
     # looping over each element (except the final element) to compute the roe flux at the right
-    for n in element_n[:-1]:
+    for n in np.arange(inputs.N_elements-1):
 
         # computing average value in the right border of element n and n+1
         h_average = 0.5*(h_[n][-1]+h_[n+1][0])
@@ -73,12 +73,12 @@ def compute_numerical_flux_vectors(element_n, basis_values_at_nods, h_, u_):
     difference_numerical_flux_2 = []
 
     #looping over all element
-    for n in element_n:
+    for n in np.arange(inputs.N_elements):
         # compute differences between flux: right numerical flux - left numerical flux
         if n == 0:               
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * 0 )
             difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * ( 0.5 * inputs.g * h_[n][0]**2 ) )
-        elif n == element_n[-1]: 
+        elif n == inputs.N_elements-1: 
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * 0 - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
             difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * ( 0.5 * inputs.g * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
         else:                    
@@ -110,7 +110,7 @@ def compute_time_derivatives(h__, u__, ele_nub, bas_vals_at_gau_quad, bas_vals_x
     stiffness_vector_1_, stiffness_vector_2_ = compute_stiffness_vectors(ele_nub, ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
 
     # computing numerical flux
-    numerical_flux_vector_1_, numerical_flux_vector_2_ = compute_numerical_flux_vectors(ele_nub, bas_vals_at_nod, h__, u__)
+    numerical_flux_vector_1_, numerical_flux_vector_2_ = compute_numerical_flux_vectors(bas_vals_at_nod, h__, u__)
 
     # computing residual vector
     residual_vector_1_ = stiffness_vector_1_ - numerical_flux_vector_1_
