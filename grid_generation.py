@@ -11,11 +11,7 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
 
     # Generate element numbers
     elements_numb = np.arange(num_elements)
-    
-    # Compute coordinates on the left and right sides of each element
-    left_node_coords = elements_division[:-1]
-    right_node_coords = elements_division[1:]
-    
+
     # Compute element lengths
     element_length = np.diff(elements_division)
 
@@ -43,8 +39,8 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
         os.makedirs(directory)
 
     # save mesh information in 'generatedfiles/grid.h5'
-    utilities.save_data_to_hdf5([elements_numb, left_node_coords, right_node_coords, element_length, nodes_coord_phys_space, nodes_coord_ref_space],
-                                ['element_number','left_node_coords','right_node_coords','element_lengths','nodes_coord_phys_space', 'nodes_coord_ref_space'],
+    utilities.save_data_to_hdf5([elements_numb, element_length, nodes_coord_phys_space, nodes_coord_ref_space],
+                                ['element_number', 'element_lengths','nodes_coord_phys_space', 'nodes_coord_ref_space'],
                                 'generatedfiles/grid.h5')
 
-    return elements_numb, left_node_coords, right_node_coords, nodes_coord_phys_space, nodes_coord_ref_space, element_length
+    return elements_numb, nodes_coord_phys_space, nodes_coord_ref_space, element_length
