@@ -4,7 +4,7 @@ import os
 import evolve
 import inputs
 
-def write_data_file(element_n, nodes_coords,entr,hgt,vel,vel_equal_hu,step):
+def write_data_file(nodes_coords,entr,hgt,vel,vel_equal_hu,step):
 
     print(f'Writing step {step} | t = {step*inputs.t_limit/inputs.n_steps}')
 
@@ -23,8 +23,8 @@ def write_data_file(element_n, nodes_coords,entr,hgt,vel,vel_equal_hu,step):
             # If the directory does not exist, create it
             os.makedirs(directory)
 
-    utilities.save_data_to_hdf5([element_n, nodes_coords, hgt, vel,step*inputs.t_limit/inputs.n_steps,entr],
-                                ['element_number', 'nodes_coordinates', 'height', 'velocity','time','entropy'],
+    utilities.save_data_to_hdf5([nodes_coords, hgt, vel,step*inputs.t_limit/inputs.n_steps,entr],
+                                ['nodes_coordinates', 'height', 'velocity','time','entropy'],
                                 'output/step_'+str(step)+'.h5')
 
 def rk4_method(_h_, _u_, timestep, ele_nub_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_):
