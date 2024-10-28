@@ -9,23 +9,20 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
     # Generate elements coordinates
     elements_division = np.linspace(initial_coord, final_coord, num_elements + 1)
 
-    # Generate element numbers
-    elements_numb = np.arange(num_elements)
-
     # Compute element lengths
     element_length = np.diff(elements_division)
 
     # Compute nodes physical space inside each element
     if basis_order != 0 :
-        nodes_coord_phys_space = [np.linspace(elements_division[i], elements_division[i + 1], basis_order + 1) for i in elements_numb]
+        nodes_coord_phys_space = [np.linspace(elements_division[i], elements_division[i + 1], basis_order + 1) for i in np.arange(num_elements)]
     else:
-        nodes_coord_phys_space = [ [ elements_division[i] + 0.5 * ( elements_division[i+1] - elements_division[i]) ] for i in elements_numb]
+        nodes_coord_phys_space = [ [ elements_division[i] + 0.5 * ( elements_division[i+1] - elements_division[i]) ] for i in np.arange(num_elements)]
 
     # Compute nodes refrecne space inside each element
     if basis_order != 0 :
-        nodes_coord_ref_space = [np.linspace(-1, 1, basis_order + 1) for _ in elements_numb]
+        nodes_coord_ref_space = [np.linspace(-1, 1, basis_order + 1) for _ in np.arange(num_elements)]
     else:
-        nodes_coord_ref_space = [ [0] for _ in elements_numb]
+        nodes_coord_ref_space = [ [0] for _ in np.arange(num_elements)]
 
     # Check if the directory exists
     directory = 'generatedfiles'
@@ -39,8 +36,8 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
         os.makedirs(directory)
 
     # save mesh information in 'generatedfiles/grid.h5'
-    utilities.save_data_to_hdf5([elements_numb, element_length, nodes_coord_phys_space, nodes_coord_ref_space],
+    utilities.save_data_to_hdf5([np.arange(num_elements), element_length, nodes_coord_phys_space, nodes_coord_ref_space],
                                 ['element_number', 'element_lengths','nodes_coord_phys_space', 'nodes_coord_ref_space'],
                                 'generatedfiles/grid.h5')
 
-    return elements_numb, nodes_coord_phys_space, nodes_coord_ref_space, element_length
+    return nodes_coord_phys_space, nodes_coord_ref_space, element_length
