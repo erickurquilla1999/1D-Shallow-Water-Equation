@@ -16,7 +16,7 @@ test.test_integration()
 # test.test_mass_matrix()
 
 # creating mesh
-nodes_coordinates_phys_space, nodes_coordinates_ref_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
+nodes_coordinates_phys_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 element_number = np.arange(inputs.N_elements)
 
