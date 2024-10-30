@@ -18,20 +18,4 @@ def generate_1d_mesh(initial_coord, final_coord, num_elements, basis_order):
     else:
         nodes_coord_phys_space = [ [ elements_division[i] + 0.5 * ( elements_division[i+1] - elements_division[i]) ] for i in np.arange(num_elements)]
 
-    # Check if the directory exists
-    directory = 'generatedfiles'
-    if os.path.exists(directory):
-        # If the directory exists, remove all files inside it
-        file_list = [os.path.join(directory, f) for f in os.listdir(directory)]
-        for f in file_list:
-            os.remove(f)
-    else:
-        # If the directory does not exist, create it
-        os.makedirs(directory)
-
-    # save mesh information in 'generatedfiles/grid.h5'
-    utilities.save_data_to_hdf5([np.arange(num_elements), element_length, nodes_coord_phys_space],
-                                ['element_number', 'element_lengths','nodes_coord_phys_space'],
-                                'generatedfiles/grid.h5')
-
     return nodes_coord_phys_space, element_length
