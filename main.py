@@ -16,9 +16,10 @@ test.test_integration()
 # test.test_mass_matrix()
 
 # creating mesh
-nodes_coordinates_phys_space, element_lengths = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
+nodes_coordinates_phys_space = grid_generation.generate_1d_mesh(inputs.x_initial,inputs.x_final,inputs.N_elements,inputs.p_basis_order)
 
 element_number = np.arange(inputs.N_elements)
+element_lengths = nodes_coordinates_phys_space[:,-1] - nodes_coordinates_phys_space[:,0]
 
 # generating reference space information
 gauss_weights, basis_values_at_gauss_quad, basis_values_x_derivative_at_gauss_quad, basis_values_at_nodes = basis.generate_reference_space(nodes_coordinates_phys_space,inputs.n_gauss_poins)
