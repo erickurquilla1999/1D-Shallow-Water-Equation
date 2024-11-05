@@ -5,7 +5,6 @@ import evolve
 
 def write_data_file(nodes_coords, entr, hgt, vel, vel_equal_hu, step, time_lim, num_steps):
 
-    print(f'time_lim = {time_lim}')
     print(f'Writing step {step} | t = {step*time_lim/num_steps}')
 
     if vel_equal_hu:
