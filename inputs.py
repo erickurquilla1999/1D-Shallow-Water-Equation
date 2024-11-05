@@ -15,9 +15,6 @@ t_limit = 4 # (s) simulation time limit
 # Gauss cuadrature
 n_gauss_poins = 20 
 
-# constant
-g = 9.8 # m/s^2
-
 # plotting setting
 plot_every_steps = 400
 
