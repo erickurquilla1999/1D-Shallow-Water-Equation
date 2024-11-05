@@ -1,5 +1,4 @@
 import numpy as np
-import inputs
 
 def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gauss_quad):
     
@@ -7,8 +6,10 @@ def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gau
     M = []
     M_inverse = []
 
+    Num_elements = len(element_lgth) # number of elements
+
     #Lopp over all element
-    for n in np.arange(inputs.N_elements):
+    for n in np.arange(Num_elements):
         phi = np.array(basis_values_at_gauss_quad[n])
         weights = gauss_weights[n]
         delta_x = element_lgth[n]
@@ -28,12 +29,14 @@ def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gau
 
 def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
 
+    Num_elements = len(h_) # number of elements
+
     # computing roe flux
     roe_flux_1 = []
     roe_flux_2 = []
 
     # looping over each element (except the final element) to compute the roe flux at the right
-    for n in np.arange(inputs.N_elements-1):
+    for n in np.arange(Num_elements-1):
 
         # computing average value in the right border of element n and n+1
         h_average = 0.5*(h_[n][-1]+h_[n+1][0])
@@ -73,12 +76,12 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
     difference_numerical_flux_2 = []
 
     #looping over all element
-    for n in np.arange(inputs.N_elements):
+    for n in np.arange(Num_elements):
         # compute differences between flux: right numerical flux - left numerical flux
         if n == 0:               
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * 0 )
             difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * ( 0.5 * 9.8 * h_[n][0]**2 ) )
-        elif n == inputs.N_elements-1: 
+        elif n == Num_elements-1: 
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * 0 - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
             difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * ( 0.5 * 9.8 * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
         else:                    
