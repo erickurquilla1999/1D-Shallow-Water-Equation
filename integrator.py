@@ -2,11 +2,11 @@ import numpy as np
 import utilities
 import os
 import evolve
-import inputs
 
-def write_data_file(nodes_coords,entr,hgt,vel,vel_equal_hu,step):
+def write_data_file(nodes_coords, entr, hgt, vel, vel_equal_hu, step, time_lim, num_steps):
 
-    print(f'Writing step {step} | t = {step*inputs.t_limit/inputs.n_steps}')
+    print(f'time_lim = {time_lim}')
+    print(f'Writing step {step} | t = {step*time_lim/num_steps}')
 
     if vel_equal_hu:
         vel=np.where(hgt == 0, 0, np.array(vel)/np.array(hgt))
@@ -23,7 +23,7 @@ def write_data_file(nodes_coords,entr,hgt,vel,vel_equal_hu,step):
             # If the directory does not exist, create it
             os.makedirs(directory)
 
-    utilities.save_data_to_hdf5([nodes_coords, hgt, vel,step*inputs.t_limit/inputs.n_steps,entr],
+    utilities.save_data_to_hdf5([nodes_coords, hgt, vel, step*time_lim/num_steps, entr],
                                 ['nodes_coordinates', 'height', 'velocity','time','entropy'],
                                 'output/step_'+str(step)+'.h5')
 
