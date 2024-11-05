@@ -40,7 +40,7 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
         u_average = 0.5*(u_[n][-1]+u_[n+1][0])
 
         # compute the jacobian evaluated in the border between elements n and n+1
-        jacobian = [ [ 0 , 1 ] , [ inputs.g * h_average - u_average**2, 2 * u_average ] ]
+        jacobian = [ [ 0 , 1 ] , [ 9.8 * h_average - u_average**2, 2 * u_average ] ]
 
         # compute eigenvalues and eigenvector of the jacobian
         eigenvalues_jacobian, eigenvectors_jacobian = np.linalg.eig(jacobian)
@@ -53,8 +53,8 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
         f1_right = h_[n+1][0] * u_[n+1][0]
 
         # for the border between element n and n+1 compute the f2 on the left and the right
-        f2_left  = h_[n][-1] * u_[n][-1]**2 + 0.5 * inputs.g * h_[n][-1]**2
-        f2_right = h_[n+1][0] * u_[n+1][0]**2 + 0.5 * inputs.g * h_[n+1][0]**2
+        f2_left  = h_[n][-1] * u_[n][-1]**2 + 0.5 * 9.8 * h_[n][-1]**2
+        f2_right = h_[n+1][0] * u_[n+1][0]**2 + 0.5 * 9.8 * h_[n+1][0]**2
 
         # for the border between element n and n+1 compute the u1 on the left and the right
         u1_left  = h_[n][-1]
@@ -77,10 +77,10 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
         # compute differences between flux: right numerical flux - left numerical flux
         if n == 0:               
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * 0 )
-            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * ( 0.5 * inputs.g * h_[n][0]**2 ) )
+            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * ( 0.5 * 9.8 * h_[n][0]**2 ) )
         elif n == inputs.N_elements-1: 
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * 0 - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
-            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * ( 0.5 * inputs.g * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
+            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * ( 0.5 * 9.8 * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
         else:                    
             difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
             difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
@@ -100,7 +100,7 @@ def compute_stiffness_vectors(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadra
 
     # compute stiffness vectors
     stiff_vec_1 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])                                                   ) ) for i in range(number_of_basis) ] for n in e_numb]
-    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * inputs.g * np.array(_h_at_gau_quad[n])**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
+    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * 9.8 * np.array(_h_at_gau_quad[n])**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
     
     return stiff_vec_1, stiff_vec_2
 
@@ -137,6 +137,6 @@ def compute_entropy(e_lgth, g_weights, bas_vals_at_gauss_quadrature, _h, _u):
     _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
 
     # compute entropy
-    entropy_ = np.sum ( [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * 0.5 * ( inputs.g * np.array(_h_at_gau_quad[n])**2 + _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 ) ) for n in e_numb] )
+    entropy_ = np.sum ( [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * 0.5 * ( 9.8 * np.array(_h_at_gau_quad[n])**2 + _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 ) ) for n in e_numb] )
 
     return entropy_
