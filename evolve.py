@@ -90,8 +90,10 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
 
     return np.array(difference_numerical_flux_1), np.array(difference_numerical_flux_2)
 
-def compute_stiffness_vectors(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadrature, bas_vals_x_der_at_gauss_quadrature, _h, _u):
+def compute_stiffness_vectors(e_lgth, g_weights, bas_vals_at_gauss_quadrature, bas_vals_x_der_at_gauss_quadrature, _h, _u):
     
+    e_numb = np.arange(len(_h)) # elements number
+
     # number of basis or nodes in each element
     number_of_basis = len(bas_vals_at_gauss_quadrature[0][0])
 
@@ -107,10 +109,10 @@ def compute_stiffness_vectors(e_numb,e_lgth, g_weights, bas_vals_at_gauss_quadra
     
     return stiff_vec_1, stiff_vec_2
 
-def compute_time_derivatives(h__, u__, ele_nub, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, ele_len, bas_vals_at_nod, mass_matrix_inverse__):
+def compute_time_derivatives(h__, u__, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, ele_len, bas_vals_at_nod, mass_matrix_inverse__):
     
     # computing stiffness vectors
-    stiffness_vector_1_, stiffness_vector_2_ = compute_stiffness_vectors(ele_nub, ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
+    stiffness_vector_1_, stiffness_vector_2_ = compute_stiffness_vectors(ele_len, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
 
     # computing numerical flux
     numerical_flux_vector_1_, numerical_flux_vector_2_ = compute_numerical_flux_vectors(bas_vals_at_nod, h__, u__)
