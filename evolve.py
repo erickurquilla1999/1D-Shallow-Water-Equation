@@ -1,7 +1,9 @@
 import numpy as np
 
-def compute_mass_matrix_inverse(element_lgth, gauss_weights, basis_values_at_gauss_quad):
+def compute_mass_matrix_inverse(malla_, gauss_weights, basis_values_at_gauss_quad):
     
+    element_lgth = malla_[:,-1] - malla_[:,0] # element lengths
+
     # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
     M = []
     M_inverse = []
