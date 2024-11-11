@@ -2,29 +2,6 @@ import numpy as np
 import os
 import evolve
 
-def write_data_file(nodes_coords, entr, hgt, vel, vel_equal_hu, step, time_lim, num_steps):
-
-    print(f'Writing step {step} | t = {step*time_lim/num_steps}')
-
-    if vel_equal_hu:
-        vel=np.where(hgt == 0, 0, np.array(vel)/np.array(hgt))
-
-    if step==0:
-        # Check if the directory exists
-        directory = 'output'
-        if os.path.exists(directory):
-            # If the directory exists, remove all files inside it
-            file_list = [os.path.join(directory, f) for f in os.listdir(directory)]
-            for f in file_list:
-                os.remove(f)
-        else:
-            # If the directory does not exist, create it
-            os.makedirs(directory)
-
-    utilities.save_data_to_hdf5([nodes_coords, hgt, vel, step*time_lim/num_steps, entr],
-                                ['nodes_coordinates', 'height', 'velocity','time','entropy'],
-                                'output/step_'+str(step)+'.h5')
-
 def rk4_method(_h_, _u_, timestep, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, ele_len_, bas_vals_at_nod_, mass_matrix_inverse_):
 
     # computing k1
