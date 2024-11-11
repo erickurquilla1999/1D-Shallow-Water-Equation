@@ -1,24 +1,5 @@
 import numpy as np
 
-def lagrange_basis(nodes, i, x):
-    """
-    Compute the Lagrange basis function corresponding to node k.
-
-    Parameters:
-        nodes (numpy.ndarray): Array of Lagrange nodes.
-        i (int): Index of the Lagrange node for which to compute the basis function.
-        x (float): Point at which to evaluate the basis function.
-
-    Returns:
-        float: Value of the Lagrange basis function at the point x.
-    """
-    n = len(nodes)
-    basis = 1.0
-    for j in range(n):
-        if j != i:
-            basis *= (x - nodes[j]) / (nodes[i] - nodes[j])
-    return basis
-
 def lagrange_basis_derivative(nodes, i, x):
     """
     Compute the derivative of the Lagrange basis function for a given node and value of x.
@@ -41,7 +22,7 @@ def lagrange_basis_derivative(nodes, i, x):
             basis_derivative += pc/(nodes[i]-nodes[j])
     return basis_derivative
 
-def generate_reference_space(nodes_phys_space, n_gauss_quad_points):
+def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_de_lagrange):
 
     # print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
 
@@ -53,7 +34,7 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points):
 
     basis_func_values_at_nodes_in_phys_space = [
         [
-            [lagrange_basis(nodes, base_index, x) for base_index in range(len(nodes))]
+            [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in nodes
         ]
         for nodes in nodes_phys_space
@@ -73,7 +54,7 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points):
     #                                                   [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
     basis_func_values_at_gauss_quad_in_phys_space = [
         [
-            [lagrange_basis(nodes, base_index, x) for base_index in range(len(nodes))]
+            [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
         ]
         for nodes, gauss_coords in zip(nodes_phys_space, gauss_coords_phys_space)
