@@ -133,19 +133,3 @@ def compute_time_derivatives(h__, u__, bas_vals_at_gau_quad, bas_vals_x_der_at_g
     du_dt_ = np.where( h__ == 0 , 0 , ( dhu_dt_ - u__ * dh_dt_ ) / h__ )
 
     return dh_dt_, du_dt_
-
-def compute_entropy(e_lgth, g_weights, bas_vals_at_gauss_quadrature, _h, _u):
-
-    # elements number
-    e_numb = np.arange(len(e_lgth))
-
-    # interpolate h from nodes to quadrature points
-    _h_at_gau_quad = [ bas_at_gau_quad @ __h for bas_at_gau_quad, __h in zip(bas_vals_at_gauss_quadrature, _h)]
-
-    # interpolate u from nodes to quadrature points
-    _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
-
-    # compute entropy
-    entropy_ = np.sum ( [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * 0.5 * ( 9.8 * np.array(_h_at_gau_quad[n])**2 + _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 ) ) for n in e_numb] )
-
-    return entropy_
