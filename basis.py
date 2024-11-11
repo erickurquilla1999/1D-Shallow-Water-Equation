@@ -66,7 +66,6 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points):
     gauss_coords_phys_space = [ 0.5 * ( nodes_phys_space[n][-1] - nodes_phys_space[n][0] ) * gauss_coords_ref_space + 0.5 * ( nodes_phys_space[n][-1] + nodes_phys_space[n][0]) for n in np.arange(number_of_elements)]
 
     # saving gauss coordinates and weigths all of them are the same for each element
-    gauss_coords_ref_space = [gauss_coords_ref_space for _ in np.arange(number_of_elements)]
     gauss_quad_weights = [gauss_quad_weights for _ in np.arange(number_of_elements)]
 
     # evaluating the basis function in the gauss quadrature points
