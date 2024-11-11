@@ -1,4 +1,4 @@
-from IPython.display import clear_output
+from IPython.display import clear_output, display
 import time
 import matplotlib.pyplot as plt
 
@@ -33,7 +33,7 @@ mpl.rcParams['xtick.top'] = True
 mpl.rcParams['ytick.right'] = True
 
 # Function to apply custom tick locators and other settings to an Axes object
-def apply_custom_settings(ax, leg, log_scale_y=False):
+def apply_custom_settings(ax, log_scale_y=False):
 
     if log_scale_y:
         # Use LogLocator for the y-axis if it's in log scale
@@ -48,10 +48,7 @@ def apply_custom_settings(ax, leg, log_scale_y=False):
     # Apply the AutoLocator for the x-axis
     ax.xaxis.set_major_locator(AutoLocator())
     ax.xaxis.set_minor_locator(AutoMinorLocator())
-    
-    # Legend settings
-    leg.get_frame().set_edgecolor('w')
-    leg.get_frame().set_linewidth(0.0)
+
 ############################################################
 
 def plot_simulation(malla, h, u, N_elementos, time_step, number_of_t_step):
@@ -61,7 +58,6 @@ def plot_simulation(malla, h, u, N_elementos, time_step, number_of_t_step):
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
     # Plot h in the top panel
-    ax1.cla()
     for i in range(N_elementos):
         ax1.plot(malla[i], h[i], linestyle='-', marker='o', markersize=5, linewidth=2)
         ax1.fill_between(malla[i], h[i], color='blue', alpha=1)
@@ -71,13 +67,11 @@ def plot_simulation(malla, h, u, N_elementos, time_step, number_of_t_step):
     ax1.tick_params(axis='both', which='both', direction='in', top=True, right=True)
     ax1.set_ylim(0.85, 1.14)
     ax1.set_ylabel(r'$h \, (m)$', fontsize=22)
-    
+
     # Apply custom settings to ax1
-    leg1 = ax1.legend()
-    apply_custom_settings(ax1, leg1)
-    
+    apply_custom_settings(ax1)
+
     # Plot u in the bottom panel
-    ax2.cla()
     for i in range(N_elementos):
         ax2.plot(malla[i], u[i], linestyle='-', marker='o', markersize=5, linewidth=2)
     ax2.minorticks_on()
@@ -86,15 +80,12 @@ def plot_simulation(malla, h, u, N_elementos, time_step, number_of_t_step):
     ax2.set_xlim(-0.5, 10.5)
     ax2.set_xlabel(r'$x \, (m)$', fontsize=22)
     ax2.set_ylabel(r'$u \, (m/s)$', fontsize=22)
-    
-    # Reduce space between subplots
-    # plt.subplots_adjust(hspace=0)
+
+    # Apply custom settings to ax2 (ensure this function is defined)
+    apply_custom_settings(ax2)
 
     ax1.set_title(r'$t = {:.2f} \, s$'.format( (number_of_t_step+1) * time_step), fontsize=22)
-    
-    # Apply custom settings to ax2
-    leg2 = ax2.legend()
-    apply_custom_settings(ax2, leg2)
-    
-    plt.show()
-    time.sleep(0)  # Pause for a second to see the change
+
+    display(fig)
+    plt.close(fig)
+    time.sleep(0.1)  # Pause briefly to allow the display to update
