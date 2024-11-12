@@ -69,8 +69,9 @@ def compute_numerical_flux_vectors(h_, u_):
     return np.array(difference_numerical_flux_1), np.array(difference_numerical_flux_2)
 
 def calcula_matrix_de_rigidez(longitud_elemento_, pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss, derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss):
-    
-    matriz_de_rigidez = 0.5 * longitud_elemento_ * np.dot(derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss * pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss.T) # S_ij = integral (dphi_i(x)/dx)phi_j(x) dx
+
+    # S_ij = integral (dphi_i(x)/dx)phi_j(x) dx
+    matriz_de_rigidez = 0.5 * longitud_elemento_ * np.dot(derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss * pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss.T)
 
     return matriz_de_rigidez
 
