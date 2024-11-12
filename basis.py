@@ -24,8 +24,7 @@ def lagrange_basis_derivative(nodes, i, x):
 
 def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_de_lagrange):
 
-    # print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
-
+    # number of elements
     number_of_elements = len(nodes_phys_space)
 
     # generate Gauss cuadrature and weights in reference space
