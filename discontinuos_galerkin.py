@@ -29,7 +29,7 @@ def compute_mass_matrix_inverse(malla_, gauss_weights, basis_values_at_gauss_qua
  
     return M_inverse
 
-def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
+def compute_numerical_flux_vectors(h_, u_):
 
     # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
     #                                              [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]

@@ -26,19 +26,7 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_d
 
     # print(f'Generating reference space information ... \nNumber of Gauss quadrature points: {n_gauss_quad_points}')
 
-    # saving basis function evaluated at nodes in physical space
-    # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
-    #                                              [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]
-
     number_of_elements = len(nodes_phys_space)
-
-    basis_func_values_at_nodes_in_phys_space = [
-        [
-            [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
-            for x in nodes
-        ]
-        for nodes in nodes_phys_space
-    ]
 
     # generate Gauss cuadrature and weights in reference space
     gauss_coords_ref_space, gauss_quad_weights = np.polynomial.legendre.leggauss(n_gauss_quad_points)
@@ -52,23 +40,23 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_d
     # evaluating the basis function in the gauss quadrature points
     # basis_func_values_at_gauss_quad_in_phys_space = [ [phi_1(gauss_coords_1), phi_2(gauss_coords_1) , ... , phi_p(gauss_coords_1)] , 
     #                                                   [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
-    basis_func_values_at_gauss_quad_in_phys_space = [
+    basis_func_values_at_gauss_quad_in_phys_space = np.array([
         [
             [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
         ]
         for nodes, gauss_coords in zip(nodes_phys_space, gauss_coords_phys_space)
-    ]    
+    ])
 
     # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
     # x_derivative_of_basis_func_at_gauss_quad_in_phys_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
     #                                                               [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
-    x_derivative_of_basis_func_at_gauss_quad_in_phys_space = [
+    x_derivative_of_basis_func_at_gauss_quad_in_phys_space = np.array([
         [
             [lagrange_basis_derivative(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
         ]
         for nodes, gauss_coords in zip(nodes_phys_space, gauss_coords_phys_space)
-    ]
+    ])
 
-    return gauss_quad_weights, np.array(basis_func_values_at_gauss_quad_in_phys_space), np.array(x_derivative_of_basis_func_at_gauss_quad_in_phys_space), np.array(basis_func_values_at_nodes_in_phys_space)
+    return gauss_quad_weights, basis_func_values_at_gauss_quad_in_phys_space, x_derivative_of_basis_func_at_gauss_quad_in_phys_space
