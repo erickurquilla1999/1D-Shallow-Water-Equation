@@ -31,6 +31,11 @@ def compute_mass_matrix_inverse(malla_, gauss_weights, basis_values_at_gauss_qua
 
 def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
 
+    # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
+    #                                              [phi_1(x_node_2), phi_2(x_node_2) , ... , phi_p(x_node_2)], ... , ]
+    # basis_values_at_nods = 1 (identity matrix of size number of nodes per element
+    basis_values_at_nods = np.eye(len(h_[0])) # basis function evaluated at nodes in physical space
+
     Num_elements = len(h_) # number of elements
 
     # computing roe flux
@@ -81,14 +86,14 @@ def compute_numerical_flux_vectors(basis_values_at_nods, h_, u_):
     for n in np.arange(Num_elements):
         # compute differences between flux: right numerical flux - left numerical flux
         if n == 0:               
-            difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * 0 )
-            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * ( 0.5 * 9.8 * h_[n][0]**2 ) )
+            difference_numerical_flux_1.append( basis_values_at_nods[:,-1] * roe_flux_1[n] - basis_values_at_nods[:,0] * 0 )
+            difference_numerical_flux_2.append( basis_values_at_nods[:,-1] * roe_flux_2[n] - basis_values_at_nods[:,0] * ( 0.5 * 9.8 * h_[n][0]**2 ) )
         elif n == Num_elements-1: 
-            difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * 0 - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
-            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * ( 0.5 * 9.8 * h_[n][-1]**2 ) - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
+            difference_numerical_flux_1.append( basis_values_at_nods[:,-1] * 0 - basis_values_at_nods[:,0] * roe_flux_1[n-1] )
+            difference_numerical_flux_2.append( basis_values_at_nods[:,-1] * ( 0.5 * 9.8 * h_[n][-1]**2 ) - basis_values_at_nods[:,0] * roe_flux_2[n-1] )
         else:                    
-            difference_numerical_flux_1.append( basis_values_at_nods[n][:,-1] * roe_flux_1[n] - basis_values_at_nods[n][:,0] * roe_flux_1[n-1] )
-            difference_numerical_flux_2.append( basis_values_at_nods[n][:,-1] * roe_flux_2[n] - basis_values_at_nods[n][:,0] * roe_flux_2[n-1] )
+            difference_numerical_flux_1.append( basis_values_at_nods[:,-1] * roe_flux_1[n] - basis_values_at_nods[:,0] * roe_flux_1[n-1] )
+            difference_numerical_flux_2.append( basis_values_at_nods[:,-1] * roe_flux_2[n] - basis_values_at_nods[:,0] * roe_flux_2[n-1] )
 
     return np.array(difference_numerical_flux_1), np.array(difference_numerical_flux_2)
 
