@@ -70,9 +70,7 @@ def compute_numerical_flux_vectors(h_, u_):
 
 def calcula_matrix_de_rigidez(longitud_elemento_, pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss, derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss):
     
-    polinomios_de_lagrange_en_cuadratura_de_gauss = polinomios_de_lagrange_en_cuadratura_de_gauss[0] # polinomios de lagrange evaluados en los puntos de la cuadratura de gauss
-    derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss = derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss[0] # derivadas de los polinomios de lagrange evaluados en los puntos de la cuadratura de gauss
-    matriz_de_rigidez = 0.5 * longitud_elemento_ * np.dot(derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss.T * pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss) # S_ij = integral (dphi_i(x)/dx)phi_j(x) dx
+    matriz_de_rigidez = 0.5 * longitud_elemento_ * np.dot(derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss * pesos_de_gauss_, polinomios_de_lagrange_en_cuadratura_de_gauss.T) # S_ij = integral (dphi_i(x)/dx)phi_j(x) dx
 
     return matriz_de_rigidez
 

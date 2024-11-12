@@ -22,34 +22,15 @@ def lagrange_basis_derivative(nodes, i, x):
             basis_derivative += pc/(nodes[i]-nodes[j])
     return basis_derivative
 
-def generate_reference_space(malla_, cuadratura_de_gauss, polinomios_de_lagrange):
+def generate_reference_space(malla_, cuadratura_de_gauss_, polinomios_de_lagrange_):
 
-    # number of elements
-    num_elementos = len(malla_)
+    # guardando la cuadratura de Gauss en el espacio físico
+    cuadratura_de_gauss_espacio_fisico = 0.5 * ( malla_[0][-1] - malla_[0][0] ) * cuadratura_de_gauss_ + 0.5 * ( malla_[0][-1] + malla_[0][0])
 
-    # saving Gauss cuadrature in physical space
-    gauss_coords_phys_space = [ 0.5 * ( malla_[n][-1] - malla_[n][0] ) * cuadratura_de_gauss + 0.5 * ( malla_[n][-1] + malla_[n][0]) for n in np.arange(num_elementos)]
+    # evaluando la función base en los puntos de cuadratura de Gauss
+    polinomios_de_lagrange_en_cuadratura_de_gauss_ = np.array([[polinomios_de_lagrange_(malla_[0], i, x) for x in cuadratura_de_gauss_espacio_fisico] for i in range(len(malla_[0]))])
 
-    # evaluating the basis function in the gauss quadrature points
-    # basis_func_values_at_gauss_quad_in_phys_space = [ [phi_1(gauss_coords_1), phi_2(gauss_coords_1) , ... , phi_p(gauss_coords_1)] , 
-    #                                                   [phi_1(gauss_coords_2), phi_2(gauss_coords_2) , ... , phi_p(gauss_coords_2)] , ... , ]
-    basis_func_values_at_gauss_quad_in_phys_space = np.array([
-        [
-            [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
-            for x in gauss_coords
-        ]
-        for nodes, gauss_coords in zip(malla_, gauss_coords_phys_space)
-    ])
+    # evaluando la derivada en x de la función base evaluada en los puntos de cuadratura de Gauss
+    derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss_ = np.array([[lagrange_basis_derivative(malla_[0], i, x) for x in cuadratura_de_gauss_espacio_fisico] for i in range(len(malla_[0]))])
 
-    # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
-    # x_derivative_of_basis_func_at_gauss_quad_in_phys_space = [ [phi'_1(gauss_coords_1), phi'_2(gauss_coords_1) , ... , phi'_p(gauss_coords_1)], 
-    #                                                               [phi'_1(gauss_coords_2), phi'_2(gauss_coords_2) , ... , phi'_p(gauss_coords_2)], ... , ]
-    x_derivative_of_basis_func_at_gauss_quad_in_phys_space = np.array([
-        [
-            [lagrange_basis_derivative(nodes, base_index, x) for base_index in range(len(nodes))]
-            for x in gauss_coords
-        ]
-        for nodes, gauss_coords in zip(malla_, gauss_coords_phys_space)
-    ])
-
-    return basis_func_values_at_gauss_quad_in_phys_space, x_derivative_of_basis_func_at_gauss_quad_in_phys_space
+    return polinomios_de_lagrange_en_cuadratura_de_gauss_, derivada_x_polinomios_de_lagrange_en_cuadratura_de_gauss_
