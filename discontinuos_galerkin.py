@@ -1,34 +1,5 @@
 import numpy as np
 
-def compute_mass_matrix_inverse(malla_, gauss_weights, basis_values_at_gauss_quad):
-    
-    element_lgth = malla_[:,-1] - malla_[:,0] # element lengths
-
-    # in element k: M_ij = integral phi_i(x) phi_j(x) dx inside the element domain
-    M = []
-    M_inverse = []
-
-    Num_elements = len(element_lgth) # number of elements
-
-    #Lopp over all element
-    for n in np.arange(Num_elements):
-        phi = np.array(basis_values_at_gauss_quad[n])
-        weights = gauss_weights[n]
-        delta_x = element_lgth[n]
-        
-        # Compute M for the current element
-        M_in_element_n = 0.5 * delta_x * np.dot(phi.T * weights, phi)
-        # Append M to the list
-        M.append(M_in_element_n)
-
-        # Compute the inverse of M for the current element
-        M_inv_in_element_n = np.linalg.inv(M_in_element_n)
-
-        # Append the inverse of M to the list
-        M_inverse.append(M_inv_in_element_n)
- 
-    return M_inverse
-
 def compute_numerical_flux_vectors(h_, u_):
 
     # basis_func_values_at_nodes_in_phys_space = [ [phi_1(x_node_1), phi_2(x_node_1) , ... , phi_p(x_node_1)] , 
