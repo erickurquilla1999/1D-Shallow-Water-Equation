@@ -16,8 +16,8 @@ def compute_time_derivatives(h__, u__, bas_vals_at_gau_quad, bas_vals_x_der_at_g
     residual_vector_2_ = stiffness_vector_2_ - numerical_flux_vector_2_
 
     # compute time derivatives of h and hu
-    dh_dt_ = [mass_mat_inv__ @ res_vec_1_ for mass_mat_inv__, res_vec_1_ in zip(mass_matrix_inverse__, residual_vector_1_)]
-    dhu_dt_ = [mass_mat_inv__ @ res_vec_2_ for mass_mat_inv__, res_vec_2_ in zip(mass_matrix_inverse__, residual_vector_2_)]
+    dh_dt_  = [mass_matrix_inverse__ @ res_vec_1_ for res_vec_1_ in residual_vector_1_]
+    dhu_dt_ = [mass_matrix_inverse__ @ res_vec_2_ for res_vec_2_ in residual_vector_2_]
 
     # compute time derivatives of u
     du_dt_ = np.where( h__ == 0 , 0 , ( dhu_dt_ - u__ * dh_dt_ ) / h__ )
