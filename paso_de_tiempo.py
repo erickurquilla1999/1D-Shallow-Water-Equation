@@ -1,15 +1,15 @@
 import numpy as np
 import os
-import discontinuos_galerkin
+import galerkin_discontinuo
 
 
 def compute_time_derivatives(h__, u__, mass_matrix_inverse__, matriz_de_rigidez__):
     
     # computing stiffness vectors
-    stiffness_vector_1_, stiffness_vector_2_ = discontinuos_galerkin.compute_stiffness_vectors(h__, u__, matriz_de_rigidez__)
+    stiffness_vector_1_, stiffness_vector_2_ = galerkin_discontinuo.compute_stiffness_vectors(h__, u__, matriz_de_rigidez__)
 
     # computing numerical flux
-    numerical_flux_vector_1_, numerical_flux_vector_2_ = discontinuos_galerkin.compute_numerical_flux_vectors(h__, u__)
+    numerical_flux_vector_1_, numerical_flux_vector_2_ = galerkin_discontinuo.compute_numerical_flux_vectors(h__, u__)
 
     # computing residual vector
     residual_vector_1_ = stiffness_vector_1_ - numerical_flux_vector_1_
