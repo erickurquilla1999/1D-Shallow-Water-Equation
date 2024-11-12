@@ -22,19 +22,13 @@ def lagrange_basis_derivative(nodes, i, x):
             basis_derivative += pc/(nodes[i]-nodes[j])
     return basis_derivative
 
-def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_de_lagrange):
+def generate_reference_space(malla_, cuadratura_de_gauss, polinomios_de_lagrange):
 
     # number of elements
-    number_of_elements = len(nodes_phys_space)
-
-    # generate Gauss cuadrature and weights in reference space
-    gauss_coords_ref_space, gauss_quad_weights = np.polynomial.legendre.leggauss(n_gauss_quad_points)
+    num_elementos = len(malla_)
 
     # saving Gauss cuadrature in physical space
-    gauss_coords_phys_space = [ 0.5 * ( nodes_phys_space[n][-1] - nodes_phys_space[n][0] ) * gauss_coords_ref_space + 0.5 * ( nodes_phys_space[n][-1] + nodes_phys_space[n][0]) for n in np.arange(number_of_elements)]
-
-    # saving gauss coordinates and weigths all of them are the same for each element
-    gauss_quad_weights = [gauss_quad_weights for _ in np.arange(number_of_elements)]
+    gauss_coords_phys_space = [ 0.5 * ( malla_[n][-1] - malla_[n][0] ) * cuadratura_de_gauss + 0.5 * ( malla_[n][-1] + malla_[n][0]) for n in np.arange(num_elementos)]
 
     # evaluating the basis function in the gauss quadrature points
     # basis_func_values_at_gauss_quad_in_phys_space = [ [phi_1(gauss_coords_1), phi_2(gauss_coords_1) , ... , phi_p(gauss_coords_1)] , 
@@ -44,7 +38,7 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_d
             [polinomios_de_lagrange(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
         ]
-        for nodes, gauss_coords in zip(nodes_phys_space, gauss_coords_phys_space)
+        for nodes, gauss_coords in zip(malla_, gauss_coords_phys_space)
     ])
 
     # evaluating the derivative in x of basis function evaluated in the gauss quadrature points
@@ -55,7 +49,7 @@ def generate_reference_space(nodes_phys_space, n_gauss_quad_points, polinomios_d
             [lagrange_basis_derivative(nodes, base_index, x) for base_index in range(len(nodes))]
             for x in gauss_coords
         ]
-        for nodes, gauss_coords in zip(nodes_phys_space, gauss_coords_phys_space)
+        for nodes, gauss_coords in zip(malla_, gauss_coords_phys_space)
     ])
 
-    return gauss_quad_weights, basis_func_values_at_gauss_quad_in_phys_space, x_derivative_of_basis_func_at_gauss_quad_in_phys_space
+    return basis_func_values_at_gauss_quad_in_phys_space, x_derivative_of_basis_func_at_gauss_quad_in_phys_space
