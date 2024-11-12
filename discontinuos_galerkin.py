@@ -68,23 +68,11 @@ def compute_numerical_flux_vectors(h_, u_):
 
     return np.array(difference_numerical_flux_1), np.array(difference_numerical_flux_2)
 
-def compute_stiffness_vectors(malla_, g_weights, bas_vals_at_gauss_quadrature, bas_vals_x_der_at_gauss_quadrature, _h, _u):
+def compute_stiffness_vectors(_h, _u, _matriz_de_rigidez):
     
     e_numb = np.arange(len(_h)) # elements number
 
-    e_lgth = malla_[:,-1] - malla_[:,0] # element lengths
+    stiff_vec_1 = np.array([ _matriz_de_rigidez @ ( _h[n] * np.array(_u[n]) ) for n in e_numb])
+    stiff_vec_2 = np.array([ _matriz_de_rigidez @ ( _h[n] * np.array(_u[n])**2 + 0.5 * 9.8 * np.array(_h[n])**2 ) for n in e_numb])
 
-    # number of basis or nodes in each element
-    number_of_basis = len(bas_vals_at_gauss_quadrature[0][0])
-
-    # interpolate h from nodes to quadrature points
-    _h_at_gau_quad = [ bas_at_gau_quad @ __h for bas_at_gau_quad, __h in zip(bas_vals_at_gauss_quadrature, _h)]
-
-    # interpolate u from nodes to quadrature points
-    _u_at_gau_quad = [ bas_at_gau_quad @ __u for bas_at_gau_quad, __u in zip(bas_vals_at_gauss_quadrature, _u)]
-
-    # compute stiffness vectors
-    stiff_vec_1 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])                                                   ) ) for i in range(number_of_basis) ] for n in e_numb]
-    stiff_vec_2 = [ [ 0.5 * e_lgth[n] * np.sum( g_weights[n] * bas_vals_x_der_at_gauss_quadrature[n][:,i] * ( _h_at_gau_quad[n] * np.array(_u_at_gau_quad[n])**2 + 0.5 * 9.8 * np.array(_h_at_gau_quad[n])**2 ) ) for i in range(number_of_basis) ] for n in e_numb]
-    
     return stiff_vec_1, stiff_vec_2

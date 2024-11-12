@@ -3,10 +3,10 @@ import os
 import discontinuos_galerkin
 
 
-def compute_time_derivatives(h__, u__, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, gau_wei, _malla_, mass_matrix_inverse__):
+def compute_time_derivatives(h__, u__, mass_matrix_inverse__, matriz_de_rigidez__):
     
     # computing stiffness vectors
-    stiffness_vector_1_, stiffness_vector_2_ = discontinuos_galerkin.compute_stiffness_vectors(_malla_, gau_wei, bas_vals_at_gau_quad, bas_vals_x_der_at_gau_quad, h__, u__)
+    stiffness_vector_1_, stiffness_vector_2_ = discontinuos_galerkin.compute_stiffness_vectors(h__, u__, matriz_de_rigidez__)
 
     # computing numerical flux
     numerical_flux_vector_1_, numerical_flux_vector_2_ = discontinuos_galerkin.compute_numerical_flux_vectors(h__, u__)
@@ -24,25 +24,25 @@ def compute_time_derivatives(h__, u__, bas_vals_at_gau_quad, bas_vals_x_der_at_g
 
     return dh_dt_, du_dt_
 
-def rk4_method(_h_, _u_, timestep, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_):
+def rk4_method(_h_, _u_, timestep, mass_matrix_inverse_, matriz_de_rigidez_):
 
     # computing k1
-    dh_dt, du_dt = compute_time_derivatives(_h_, _u_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_)
+    dh_dt, du_dt = compute_time_derivatives(_h_, _u_, mass_matrix_inverse_, matriz_de_rigidez_)
     k1_h = dh_dt * timestep
     k1_u = du_dt * timestep
 
     # computing k2
-    dh_dt, du_dt = compute_time_derivatives(_h_ + k1_h * 0.5, _u_ + k1_u * 0.5, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_)
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k1_h * 0.5, _u_ + k1_u * 0.5, mass_matrix_inverse_, matriz_de_rigidez_)
     k2_h = dh_dt * timestep
     k2_u = du_dt * timestep
 
     # computing k3
-    dh_dt, du_dt = compute_time_derivatives(_h_ + k2_h * 0.5, _u_ + k2_u * 0.5, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_)
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k2_h * 0.5, _u_ + k2_u * 0.5, mass_matrix_inverse_, matriz_de_rigidez_)
     k3_h = dh_dt * timestep
     k3_u = du_dt * timestep
 
     # computing k4
-    dh_dt, du_dt = compute_time_derivatives(_h_ + k3_h, _u_ + k3_u, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_)
+    dh_dt, du_dt = compute_time_derivatives(_h_ + k3_h, _u_ + k3_u, mass_matrix_inverse_, matriz_de_rigidez_)
     k4_h = dh_dt * timestep
     k4_u = du_dt * timestep
 
@@ -52,10 +52,10 @@ def rk4_method(_h_, _u_, timestep, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_
 
     return h_new, u_new
 
-def euler_method(_h_, _u_, timestep, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_):
+def euler_method(_h_, _u_, timestep, mass_matrix_inverse_, matriz_de_rigidez_):
 
     # compute time derivatives of h and u
-    dh_dt, du_dt = compute_time_derivatives(_h_, _u_, bas_vals_at_gau_quad_, bas_vals_x_der_at_gau_quad_, gau_wei_, malla__, mass_matrix_inverse_)
+    dh_dt, du_dt = compute_time_derivatives(_h_, _u_, mass_matrix_inverse_, matriz_de_rigidez_)
 
     # evolving in time h and u with euler method
     h_new = _h_ + dh_dt * timestep
